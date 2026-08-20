@@ -157,16 +157,18 @@ AS $$
     SELECT COALESCE(
         bool_and(
             jsonb_typeof(item) = 'object'
+            AND item ? 'product_id'
+            AND item ? 'quantity'
+            AND item ? 'rate'
+            AND item ? 'mrp'
             AND (item ->> 'product_id') IS NOT NULL
-            AND (item ->> 'product_id') ~ '^\\d+$'
-            AND ((item ->> 'product_id')::BIGINT) > 0
             AND (item ->> 'quantity') IS NOT NULL
-            AND (item ->> 'quantity') ~ '^\\d+$'
-            AND ((item ->> 'quantity')::INTEGER) > 0
             AND (item ->> 'rate') IS NOT NULL
             AND (item ->> 'mrp') IS NOT NULL
-            AND ((item ->> 'rate')::NUMERIC) >= 0
-            AND ((item ->> 'mrp')::NUMERIC) >= 0
+            AND ((item ->> 'product_id')::TEXT)::BIGINT > 0
+            AND ((item ->> 'quantity')::TEXT)::INTEGER > 0
+            AND ((item ->> 'rate')::TEXT)::NUMERIC >= 0
+            AND ((item ->> 'mrp')::TEXT)::NUMERIC >= 0
         ),
         FALSE
     )
@@ -194,7 +196,19 @@ CREATE OR REPLACE FUNCTION public.create_sale_transaction(
     p_amount_paid NUMERIC(18,2),
     p_balance_amount NUMERIC(18,2)
 )
-RETURNS public.sales
+RETURNS TABLE(
+    id BIGINT,
+    date DATE,
+    customer_id BIGINT,
+    customer_name TEXT,
+    customer_contact TEXT,
+    items JSONB,
+    total_amount NUMERIC,
+    payment_status TEXT,
+    amount_paid NUMERIC,
+    balance_amount NUMERIC,
+    created_at TIMESTAMPTZ
+)
 LANGUAGE plpgsql
 AS $$
 DECLARE
@@ -204,35 +218,40 @@ DECLARE
     v_quantity INTEGER;
     v_current_stock INTEGER;
 BEGIN
-    IF p_customer_id IS NOT NULL AND NOT EXISTS (
-        SELECT 1 FROM public.customers WHERE id = p_customer_id
-    ) THEN
-        RAISE EXCEPTION 'Customer not found for customer_id=%', p_customer_id;
+    -- Validate customer exists if provided
+    IF p_customer_id IS NOT NULL THEN
+        IF NOT EXISTS (SELECT 1 FROM public.customers WHERE id = p_customer_id) THEN
+            RAISE EXCEPTION 'Customer not found for customer_id=%', p_customer_id;
+        END IF;
     END IF;
 
+    -- Validate customer name
     IF p_customer_name IS NULL OR TRIM(p_customer_name) = '' THEN
         RAISE EXCEPTION 'customer_name is required';
     END IF;
 
+    -- Validate customer contact
     IF p_customer_contact IS NULL OR TRIM(p_customer_contact) = '' THEN
         RAISE EXCEPTION 'customer_contact is required';
     END IF;
 
+    -- Validate items array
     IF p_items IS NULL OR jsonb_typeof(p_items) <> 'array' OR jsonb_array_length(p_items) = 0 THEN
         RAISE EXCEPTION 'sales.items must be a non-empty JSONB array';
     END IF;
 
+    -- Validate items structure
     IF NOT public.validate_sale_items(p_items) THEN
         RAISE EXCEPTION 'Invalid sale item payload';
     END IF;
 
-    FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+    -- Check stock for all items first (before any updates)
+    FOR v_item IN SELECT jsonb_array_elements(p_items)
     LOOP
         v_product_id := (v_item ->> 'product_id')::BIGINT;
         v_quantity := (v_item ->> 'quantity')::INTEGER;
 
-        SELECT stock
-        INTO v_current_stock
+        SELECT stock INTO v_current_stock
         FROM public.products
         WHERE id = v_product_id
         FOR UPDATE;
@@ -249,6 +268,7 @@ BEGIN
         END IF;
     END LOOP;
 
+    -- Create sale record
     INSERT INTO public.sales (
         date,
         customer_id,
@@ -271,9 +291,10 @@ BEGIN
         p_amount_paid,
         p_balance_amount
     )
-    RETURNING id INTO v_sale_id;
+    RETURNING public.sales.id INTO v_sale_id;
 
-    FOR v_item IN SELECT * FROM jsonb_array_elements(p_items)
+    -- Update product stock for all items
+    FOR v_item IN SELECT jsonb_array_elements(p_items)
     LOOP
         v_product_id := (v_item ->> 'product_id')::BIGINT;
         v_quantity := (v_item ->> 'quantity')::INTEGER;
@@ -284,10 +305,22 @@ BEGIN
         WHERE id = v_product_id;
     END LOOP;
 
+    -- Return the created sale
     RETURN QUERY
-    SELECT *
-    FROM public.sales
-    WHERE id = v_sale_id;
+    SELECT 
+        s.id,
+        s.date,
+        s.customer_id,
+        s.customer_name,
+        s.customer_contact,
+        s.items,
+        s.total_amount,
+        s.payment_status,
+        s.amount_paid,
+        s.balance_amount,
+        s.created_at
+    FROM public.sales s
+    WHERE s.id = v_sale_id;
 END;
 $$;
 

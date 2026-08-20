@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useImperativeHandle, useState } from 'react'
+import { forwardRef } from 'react'
 import { fetchCustomers } from '../services/customersService'
 import { fetchProducts } from '../services/productsService'
 
-export function SalesForm({ onSubmit, isLoading = false }) {
+export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = false }, ref) {
     const [customers, setCustomers] = useState([])
     const [products, setProducts] = useState([])
     const [loadingData, setLoadingData] = useState(true)
@@ -19,6 +20,23 @@ export function SalesForm({ onSubmit, isLoading = false }) {
     const [addItemQuantity, setAddItemQuantity] = useState('1')
     const [addItemRate, setAddItemRate] = useState('')
     const [errors, setErrors] = useState({})
+
+    // Expose reset method via ref
+    useImperativeHandle(ref, () => ({
+        resetForm: resetForm,
+    }))
+
+    function resetForm() {
+        setCustomerType('existing')
+        setSelectedCustomerId(null)
+        setSelectedCustomer(null)
+        setCustomerContact('')
+        setItems([])
+        setSelectedProductId('')
+        setAddItemQuantity('1')
+        setAddItemRate('')
+        setErrors({})
+    }
 
     // Load customers and products on mount
     useEffect(() => {
@@ -625,4 +643,4 @@ export function SalesForm({ onSubmit, isLoading = false }) {
             </button>
         </form>
     )
-}
+})

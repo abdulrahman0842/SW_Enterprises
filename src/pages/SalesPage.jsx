@@ -1,23 +1,30 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { SalesForm } from '../components/SalesForm'
 import { Toast, useToast } from '../components/Toast'
+import { createSale } from '../services/salesService'
 
 export function SalesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [submittedData, setSubmittedData] = useState(null)
+    const formRef = useRef(null)
     const { toasts, showToast, removeToast } = useToast()
 
     async function handleSubmitSale(saleData) {
         try {
             setIsSubmitting(true)
-            // TODO: Save to Supabase when backend is ready
-            // For now, just validate and display the data
-            console.log('Sale data ready for submission:', saleData)
-            setSubmittedData(saleData)
-            showToast('Sale form validated successfully. Ready for save implementation.', 'success')
+            const result = await createSale(saleData)
+            
+            showToast(
+                `Sale #${result.id} created successfully! Stock updated.`,
+                'success'
+            )
+            
+            // Reset form by calling reset method on ref
+            if (formRef.current?.resetForm) {
+                formRef.current.resetForm()
+            }
         } catch (error) {
-            console.error('Error processing sale:', error)
-            showToast('Error processing sale', 'error')
+            console.error('Error creating sale:', error)
+            showToast(error.message || 'Failed to create sale', 'error')
         } finally {
             setIsSubmitting(false)
         }
@@ -38,27 +45,8 @@ export function SalesPage() {
             </section>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <SalesForm onSubmit={handleSubmitSale} isLoading={isSubmitting} />
+                <SalesForm ref={formRef} onSubmit={handleSubmitSale} isLoading={isSubmitting} />
             </div>
-
-            {submittedData && (
-                <section className="rounded-2xl border border-green-200 bg-green-50 p-5 shadow-sm sm:p-6">
-                    <p className="text-sm font-semibold uppercase tracking-wider text-green-700">
-                        Form Data Validated
-                    </p>
-                    <div className="mt-3 space-y-2 text-sm text-green-900">
-                        <p>
-                            <strong>Customer:</strong> {submittedData.customer_id ? `ID: ${submittedData.customer_id}` : 'One-time'} - {submittedData.customer_name}
-                        </p>
-                        <p>
-                            <strong>Items:</strong> {submittedData.items.length} product(s)
-                        </p>
-                        <p>
-                            <strong>Total:</strong> ₹{submittedData.total_amount.toFixed(2)}
-                        </p>
-                    </div>
-                </section>
-            )}
 
             {toasts.map((toast) => (
                 <Toast
