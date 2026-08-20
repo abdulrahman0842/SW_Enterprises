@@ -30,12 +30,10 @@ export function Layout() {
                 <header className="border-b border-slate-200 bg-white/80 shadow-sm backdrop-blur-sm">
                     <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
                         <div>
-                            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
-                                SW Enterprises
-                            </p>
+                            
 
                             <h1 className="text-xl font-bold text-slate-900">
-                                SW Enterprise ERP
+                                SW Enterprises
                             </h1>
                         </div>
 
@@ -49,7 +47,7 @@ export function Layout() {
                     </div>
                 </header>
 
-                <main className="flex-1 overflow-auto px-4 py-8 sm:px-6 lg:px-8">
+                <main className="flex-1 overflow-auto px-4 py-4 sm:px-6 lg:px-8">
                     <div className="mx-auto max-w-7xl">
                         <Outlet />
                     </div>
