@@ -1,4 +1,4 @@
-export function PurchaseList({ purchases, loading }) {
+export function PurchaseList({ purchases, loading, selectedPurchaseId, onSelectPurchase }) {
     if (loading) {
         return (
             <div className="py-8 text-center text-slate-500">
@@ -17,16 +17,18 @@ export function PurchaseList({ purchases, loading }) {
 
     return (
         <>
-            {/* Mobile cards view */}
             <div className="space-y-3 md:hidden">
                 {purchases.map((purchase) => (
                     <article
                         key={purchase.id}
-                        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                        className={`rounded-2xl border p-4 shadow-sm ${selectedPurchaseId === purchase.id ? 'border-sky-200 bg-sky-50' : 'border-slate-200 bg-white'}`}
                     >
                         <div className="flex items-start justify-between gap-3">
                             <div>
-                                <h3 className="text-lg font-semibold text-slate-900">
+                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                                    Purchase #{purchase.id}
+                                </p>
+                                <h3 className="mt-1 text-lg font-semibold text-slate-900">
                                     {purchase.products?.name || 'Unknown Product'}
                                 </h3>
                                 <p className="text-xs text-slate-500 mt-1">
@@ -53,29 +55,39 @@ export function PurchaseList({ purchases, loading }) {
                                 <span className="text-sky-700">₹{(purchase.quantity * purchase.rate).toFixed(2)}</span>
                             </div>
                         </div>
+
+                        <button
+                            type="button"
+                            onClick={() => onSelectPurchase?.(purchase.id)}
+                            className="mt-4 w-full rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-700"
+                        >
+                            View details
+                        </button>
                     </article>
                 ))}
             </div>
 
-            {/* Desktop table view */}
             <div className="hidden overflow-x-auto md:block">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="border-b border-slate-200">
+                        <tr className="border-b border-slate-200 bg-slate-50">
+                            <th className="px-4 py-3 text-left font-semibold text-slate-900">Purchase ID</th>
                             <th className="px-4 py-3 text-left font-semibold text-slate-900">Date</th>
                             <th className="px-4 py-3 text-left font-semibold text-slate-900">Product</th>
                             <th className="px-4 py-3 text-right font-semibold text-slate-900">Quantity</th>
                             <th className="px-4 py-3 text-right font-semibold text-slate-900">Rate</th>
                             <th className="px-4 py-3 text-right font-semibold text-slate-900">MRP</th>
                             <th className="px-4 py-3 text-right font-semibold text-slate-900">Total</th>
+                            <th className="px-4 py-3 text-right font-semibold text-slate-900">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {purchases.map((purchase) => (
                             <tr
                                 key={purchase.id}
-                                className="border-b border-slate-100 hover:bg-slate-50"
+                                className={selectedPurchaseId === purchase.id ? 'border-b border-slate-100 bg-sky-50' : 'border-b border-slate-100 hover:bg-slate-50'}
                             >
+                                <td className="px-4 py-3 text-slate-900 font-semibold">#{purchase.id}</td>
                                 <td className="px-4 py-3 text-slate-900">
                                     {new Date(purchase.date).toLocaleDateString()}
                                 </td>
@@ -91,6 +103,15 @@ export function PurchaseList({ purchases, loading }) {
                                 </td>
                                 <td className="px-4 py-3 text-right font-semibold text-sky-700">
                                     ₹{(purchase.quantity * purchase.rate).toFixed(2)}
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                    <button
+                                        type="button"
+                                        onClick={() => onSelectPurchase?.(purchase.id)}
+                                        className="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-700"
+                                    >
+                                        View
+                                    </button>
                                 </td>
                             </tr>
                         ))}

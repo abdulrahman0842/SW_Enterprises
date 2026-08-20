@@ -44,6 +44,7 @@ function validatePurchase(form) {
 export function PurchasesPage() {
     const [products, setProducts] = useState([])
     const [purchases, setPurchases] = useState([])
+    const [selectedPurchaseId, setSelectedPurchaseId] = useState(null)
     const [form, setForm] = useState(createEmptyForm())
     const [errors, setErrors] = useState({})
     const [productsLoading, setProductsLoading] = useState(true)
@@ -74,6 +75,10 @@ export function PurchasesPage() {
             setPurchasesLoading(true)
             const data = await fetchPurchases()
             setPurchases(data)
+
+            if (data.length > 0 && !selectedPurchaseId) {
+                setSelectedPurchaseId(data[0].id)
+            }
         } catch (error) {
             console.error('Failed to load purchases:', error)
             showToast('Failed to load purchases', 'error')
@@ -130,6 +135,8 @@ export function PurchasesPage() {
         }
     }
 
+    const selectedPurchase = purchases.find((purchase) => purchase.id === selectedPurchaseId) || null
+
     return (
         <div className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -160,7 +167,52 @@ export function PurchasesPage() {
                         </span>
                     </div>
 
-                    <PurchaseList purchases={purchases} loading={purchasesLoading} />
+                    <PurchaseList
+                        purchases={purchases}
+                        loading={purchasesLoading}
+                        selectedPurchaseId={selectedPurchaseId}
+                        onSelectPurchase={setSelectedPurchaseId}
+                    />
+
+                    {selectedPurchase && (
+                        <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
+                                        Purchase #{selectedPurchase.id}
+                                    </p>
+                                    <h3 className="mt-1 text-xl font-semibold text-slate-900">
+                                        {selectedPurchase.products?.name || 'Unknown Product'}
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Date</p>
+                                    <p className="mt-1 text-sm text-slate-900">{new Date(selectedPurchase.date).toLocaleDateString()}</p>
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Quantity</p>
+                                    <p className="mt-1 text-sm text-slate-900">{selectedPurchase.quantity} boxes</p>
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Purchase Rate</p>
+                                    <p className="mt-1 text-sm text-slate-900">₹{Number(selectedPurchase.rate || 0).toFixed(2)}</p>
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-white p-3">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">MRP</p>
+                                    <p className="mt-1 text-sm text-slate-900">₹{Number(selectedPurchase.mrp || 0).toFixed(2)}</p>
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-white p-3 sm:col-span-2">
+                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Total Amount</p>
+                                    <p className="mt-1 text-lg font-semibold text-sky-700">
+                                        ₹{(Number(selectedPurchase.quantity || 0) * Number(selectedPurchase.rate || 0)).toFixed(2)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
