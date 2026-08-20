@@ -1,50 +1,69 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ProductForm } from '../components/ProductForm'
 import { ProductList } from '../components/ProductList'
-
-const initialProducts = [
-    { id: 1, name: '250ml Water Bottle', description: 'Compact bottled water for retail and distribution.', bottlesPerBox: 30 },
-    { id: 2, name: '500ml Water Bottle', description: 'Standard household water bottle pack.', bottlesPerBox: 24 },
-    { id: 3, name: '1000ml Water Bottle', description: 'Large format water bottle for bulk usage.', bottlesPerBox: 12 },
-]
+import { Toast, useToast } from '../components/Toast'
+import { createProduct, deleteProduct, fetchProducts, updateProduct } from '../services/productsService'
 
 const createEmptyForm = () => ({
     name: '',
     description: '',
-    bottlesPerBox: '',
+    quantity_per_box: '',
 })
 
 function validateProduct(form, products, editingId) {
     const errors = {}
     const trimmedName = form.name.trim()
-    const bottlesPerBox = Number(form.bottlesPerBox)
+    const quantityPerBox = Number(form.quantity_per_box)
 
     if (!trimmedName) {
         errors.name = 'Product name is required.'
-    } else if (
-        products.some(
+    } else {
+        const isDuplicate = products.some(
             (product) =>
                 product.id !== editingId &&
                 product.name.trim().toLowerCase() === trimmedName.toLowerCase(),
         )
-    ) {
-        errors.name = 'Product name must be unique.'
+        if (isDuplicate) {
+            errors.name = 'Product name must be unique.'
+        }
     }
 
-    if (form.bottlesPerBox === '' || !Number.isInteger(bottlesPerBox) || bottlesPerBox <= 0) {
-        errors.bottlesPerBox = 'Bottles per box must be a positive integer.'
+    if (form.quantity_per_box === '' || !Number.isInteger(quantityPerBox) || quantityPerBox <= 0) {
+        errors.quantity_per_box = 'Quantity per box must be a positive integer.'
     }
 
     return errors
 }
 
 export function ProductsPage() {
-    const [products, setProducts] = useState(initialProducts)
+    const [products, setProducts] = useState([])
     const [form, setForm] = useState(createEmptyForm())
     const [errors, setErrors] = useState({})
     const [editingId, setEditingId] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [submitting, setSubmitting] = useState(false)
+    const [deleting, setDeleting] = useState(null)
+    const { toasts, showToast, removeToast } = useToast()
 
     const isEditing = useMemo(() => editingId !== null, [editingId])
+
+    useEffect(() => {
+        async function loadProducts() {
+            try {
+                setLoading(true)
+                const data = await fetchProducts()
+                setProducts(data)
+            } catch (error) {
+                console.error('Failed to load products:', error)
+                showToast('Failed to load products', 'error')
+            } finally {
+                setLoading(false)
+            }
+        }
+        loadProducts()
+    }, [])
+
+
 
     function resetForm() {
         setForm(createEmptyForm())
@@ -66,7 +85,7 @@ export function ProductsPage() {
         }))
     }
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault()
 
         const validationErrors = validateProduct(form, products, editingId)
@@ -76,24 +95,39 @@ export function ProductsPage() {
             return
         }
 
-        const productData = {
-            id: editingId ?? Date.now(),
-            name: form.name.trim(),
-            description: form.description.trim(),
-            bottlesPerBox: Number(form.bottlesPerBox),
-        }
+        setSubmitting(true)
 
-        if (editingId) {
-            setProducts((currentProducts) =>
-                currentProducts.map((product) =>
-                    product.id === editingId ? productData : product,
-                ),
-            )
-        } else {
-            setProducts((currentProducts) => [productData, ...currentProducts])
-        }
+        try {
+            if (isEditing) {
+                const updated = await updateProduct(
+                    editingId,
+                    form.name,
+                    form.description,
+                    form.quantity_per_box,
+                )
+                setProducts((currentProducts) =>
+                    currentProducts.map((product) =>
+                        product.id === editingId ? updated : product,
+                    ),
+                )
+                showToast('Product updated successfully', 'success')
+            } else {
+                const created = await createProduct(
+                    form.name,
+                    form.description,
+                    form.quantity_per_box,
+                )
+                setProducts((currentProducts) => [created, ...currentProducts])
+                showToast('Product created successfully', 'success')
+            }
 
-        resetForm()
+            resetForm()
+        } catch (error) {
+            console.error('Failed to save product:', error)
+            showToast(error?.message || 'Failed to save product', 'error')
+        } finally {
+            setSubmitting(false)
+        }
     }
 
     function handleEdit(product) {
@@ -101,18 +135,29 @@ export function ProductsPage() {
         setForm({
             name: product.name,
             description: product.description || '',
-            bottlesPerBox: String(product.bottlesPerBox),
+            quantity_per_box: String(product.quantity_per_box),
         })
         setErrors({})
     }
 
-    function handleDelete(productId) {
-        setProducts((currentProducts) =>
-            currentProducts.filter((product) => product.id !== productId),
-        )
+    async function handleDelete(productId) {
+        setDeleting(productId)
 
-        if (editingId === productId) {
-            resetForm()
+        try {
+            await deleteProduct(productId)
+            setProducts((currentProducts) =>
+                currentProducts.filter((product) => product.id !== productId),
+            )
+            showToast('Product deleted successfully', 'success')
+
+            if (editingId === productId) {
+                resetForm()
+            }
+        } catch (error) {
+            console.error('Failed to delete product:', error)
+            showToast(error?.message || 'Failed to delete product', 'error')
+        } finally {
+            setDeleting(null)
         }
     }
 
@@ -135,6 +180,7 @@ export function ProductsPage() {
                     onChange={handleChange}
                     onSubmit={handleSubmit}
                     onCancel={resetForm}
+                    isSubmitting={submitting}
                 />
 
                 <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
@@ -145,9 +191,27 @@ export function ProductsPage() {
                         </span>
                     </div>
 
-                    <ProductList products={products} onEdit={handleEdit} onDelete={handleDelete} />
+                    {loading ? (
+                        <div className="py-8 text-center text-slate-500">Loading products...</div>
+                    ) : (
+                        <ProductList
+                            products={products}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            deleting={deleting}
+                        />
+                    )}
                 </div>
             </div>
+
+            {toasts.map((toast) => (
+                <Toast
+                    key={toast.id}
+                    message={toast.message}
+                    type={toast.type}
+                    onClose={() => removeToast(toast.id)}
+                />
+            ))}
         </div>
     )
 }

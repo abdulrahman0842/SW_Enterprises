@@ -1,4 +1,4 @@
-export function ProductForm({ form, errors, isEditing, onChange, onSubmit, onCancel }) {
+export function ProductForm({ form, errors, isEditing, onChange, onSubmit, onCancel, isSubmitting }) {
     return (
         <form onSubmit={onSubmit} className="space-y-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
             <div className="flex items-center justify-between gap-3">
@@ -48,30 +48,31 @@ export function ProductForm({ form, errors, isEditing, onChange, onSubmit, onCan
             </div>
 
             <div className="space-y-1">
-                <label htmlFor="bottlesPerBox" className="block text-sm font-medium text-slate-700">
-                    Bottles per box
+                <label htmlFor="quantity_per_box" className="block text-sm font-medium text-slate-700">
+                    Quantity per box
                 </label>
                 <input
-                    id="bottlesPerBox"
-                    name="bottlesPerBox"
+                    id="quantity_per_box"
+                    name="quantity_per_box"
                     type="number"
                     min="1"
                     step="1"
-                    value={form.bottlesPerBox}
+                    value={form.quantity_per_box}
                     onChange={onChange}
                     placeholder="30"
                     className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-base text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
                 />
-                {errors.bottlesPerBox && (
-                    <p className="text-sm text-rose-600">{errors.bottlesPerBox}</p>
+                {errors.quantity_per_box && (
+                    <p className="text-sm text-rose-600">{errors.quantity_per_box}</p>
                 )}
             </div>
 
             <button
                 type="submit"
-                className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500"
+                disabled={isSubmitting}
+                className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-sky-300"
             >
-                {isEditing ? 'Save changes' : 'Add product'}
+                {isSubmitting ? 'Saving...' : isEditing ? 'Save changes' : 'Add product'}
             </button>
         </form>
     )
