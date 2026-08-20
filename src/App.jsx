@@ -5,6 +5,10 @@ import { Layout } from './components/Layout'
 import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ProductsPage } from './pages/ProductsPage'
+import { PurchasesPage } from './pages/PurchasesPage'
+import { InventoryPage } from './pages/InventoryPage'
+import { SalesPage } from './pages/SalesPage'
+import { CustomersPage } from './pages/CustomersPage'
 
 function AppRoutes() {
   const { session, loading } = useAuthContext()
@@ -39,6 +43,50 @@ function AppRoutes() {
           // <ProtectedRoute>
           <Layout>
             <ProductsPage />
+          </Layout>
+          // </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/purchases"
+        element={
+          // <ProtectedRoute>
+          <Layout>
+            <PurchasesPage />
+          </Layout>
+          // </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/inventory"
+        element={
+          // <ProtectedRoute>
+          <Layout>
+            <InventoryPage />
+          </Layout>
+          // </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/sales"
+        element={
+          // <ProtectedRoute>
+          <Layout>
+            <SalesPage />
+          </Layout>
+          // </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/customers"
+        element={
+          // <ProtectedRoute>
+          <Layout>
+            <CustomersPage />
           </Layout>
           // </ProtectedRoute>
         }
