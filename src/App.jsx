@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { AuthProvider, useAuthContext } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
 import { Layout } from './components/Layout'
-// import { ProtectedRoute } from './components/ProtectedRoute'
+import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { ProductsPage } from './pages/ProductsPage'
@@ -9,90 +9,32 @@ import { PurchasesPage } from './pages/PurchasesPage'
 import { InventoryPage } from './pages/InventoryPage'
 import { SalesPage } from './pages/SalesPage'
 import { CustomersPage } from './pages/CustomersPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 
 function AppRoutes() {
-  const { session, loading } = useAuthContext()
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 text-sm font-medium text-slate-600">
-        Loading application...
-      </div>
-    )
-  }
-
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
 
-      <Route
-        path="/dashboard"
-        element={
-          // <ProtectedRoute>
-          <Layout>
-            <DashboardPage />
-          </Layout>
-          // </ProtectedRoute>
-        }
-      />
 
-      <Route
-        path="/products"
-        element={
-          // <ProtectedRoute>
-          <Layout>
-            <ProductsPage />
-          </Layout>
-          // </ProtectedRoute>
-        }
-      />
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/purchases" element={<PurchasesPage />} />
+          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/sales" element={<SalesPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+        </Route>
+      </Route>
 
-      <Route
-        path="/purchases"
-        element={
-          // <ProtectedRoute>
-          <Layout>
-            <PurchasesPage />
-          </Layout>
-          // </ProtectedRoute>
-        }
-      />
+      {/* Root */}
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-      <Route
-        path="/inventory"
-        element={
-          // <ProtectedRoute>
-          <Layout>
-            <InventoryPage />
-          </Layout>
-          // </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/sales"
-        element={
-          // <ProtectedRoute>
-          <Layout>
-            <SalesPage />
-          </Layout>
-          // </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/customers"
-        element={
-          // <ProtectedRoute>
-          <Layout>
-            <CustomersPage />
-          </Layout>
-          // </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* 404 */}
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }

@@ -1,9 +1,10 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation, Outlet } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { Sidebar } from './Sidebar'
 
-export function Layout({ children }) {
+export function Layout() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { signOut } = useAuth()
 
     async function handleLogout() {
@@ -12,7 +13,12 @@ export function Layout({ children }) {
         } catch (error) {
             console.error('Logout failed:', error)
         } finally {
-            navigate('/login', { replace: true })
+            navigate('/login', {
+                replace: true,
+                state: {
+                    from: location,
+                },
+            })
         }
     }
 
@@ -25,9 +31,12 @@ export function Layout({ children }) {
                     <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
                         <div>
                             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
-                                SW Enterprises 
+                                SW Enterprises
                             </p>
-                            <h1 className="text-xl font-bold text-slate-900">SW Enterprise ERP</h1>
+
+                            <h1 className="text-xl font-bold text-slate-900">
+                                SW Enterprise ERP
+                            </h1>
                         </div>
 
                         <button
@@ -41,7 +50,9 @@ export function Layout({ children }) {
                 </header>
 
                 <main className="flex-1 overflow-auto px-4 py-8 sm:px-6 lg:px-8">
-                    <div className="mx-auto max-w-7xl">{children}</div>
+                    <div className="mx-auto max-w-7xl">
+                        <Outlet />
+                    </div>
                 </main>
             </div>
         </div>
