@@ -19,6 +19,8 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
     const [selectedProductId, setSelectedProductId] = useState('')
     const [addItemQuantity, setAddItemQuantity] = useState('1')
     const [addItemRate, setAddItemRate] = useState('')
+    const [paymentStatus, setPaymentStatus] = useState('Pending')
+    const [amountPaid, setAmountPaid] = useState('0')
     const [errors, setErrors] = useState({})
 
     // Expose reset method via ref
@@ -35,6 +37,8 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
         setSelectedProductId('')
         setAddItemQuantity('1')
         setAddItemRate('')
+        setPaymentStatus('Pending')
+        setAmountPaid('0')
         setErrors({})
     }
 
@@ -174,6 +178,33 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
         return items.reduce((sum, item) => sum + calculateItemTotal(item), 0)
     }
 
+    function calculateBalance() {
+        const total = calculateGrandTotal()
+        const paid = Number(amountPaid || 0)
+
+        if (paymentStatus === 'Paid') {
+            return 0
+        }
+
+        if (paymentStatus === 'Pending') {
+            return total
+        }
+
+        return Math.max(total - paid, 0)
+    }
+
+    function getPaymentStatusClass(status) {
+        if (status === 'Paid') {
+            return 'bg-emerald-100 text-emerald-700'
+        }
+
+        if (status === 'Partial') {
+            return 'bg-amber-100 text-amber-700'
+        }
+
+        return 'bg-slate-100 text-slate-700'
+    }
+
     // Validate form before submission
     function validateForm() {
         const newErrors = {}
@@ -195,6 +226,31 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
             newErrors.items = 'Please add at least one product to the sale'
         }
 
+        const total = calculateGrandTotal()
+        const paid = Number(amountPaid || 0)
+
+        if (!['Paid', 'Pending', 'Partial'].includes(paymentStatus)) {
+            newErrors.paymentStatus = 'Invalid payment status'
+        }
+
+        if (paymentStatus === 'Paid') {
+            if (paid !== total) {
+                newErrors.payment = 'Paid status requires amount paid to equal the total amount.'
+            }
+        } else if (paymentStatus === 'Pending') {
+            if (paid !== 0) {
+                newErrors.payment = 'Pending status requires amount paid to be zero.'
+            }
+        } else if (paymentStatus === 'Partial') {
+            if (!(paid > 0 && paid < total)) {
+                newErrors.payment = 'Partial status requires amount paid to be greater than zero and less than total.'
+            }
+        }
+
+        if (Number.isNaN(paid) || paid < 0) {
+            newErrors.payment = 'Amount paid must be a valid non-negative number.'
+        }
+
         return newErrors
     }
 
@@ -207,13 +263,19 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
             return
         }
 
+        const total = calculateGrandTotal()
+        const paid = Number(amountPaid || 0)
+
         const saleData = {
             customer_id: customerType === 'existing' ? selectedCustomerId : null,
             customer_name:
                 customerType === 'existing' ? selectedCustomer.name : selectedCustomer?.name || '',
             customer_contact: customerContact,
             items: items,
-            total_amount: calculateGrandTotal(),
+            total_amount: total,
+            payment_status: paymentStatus,
+            amount_paid: paid,
+            balance_amount: calculateBalance(),
         }
 
         onSubmit(saleData)
@@ -616,11 +678,66 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
             {/* Order Summary */}
             {items.length > 0 && (
                 <section className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 sm:p-6">
-                    <div className="space-y-2">
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between gap-3">
+                            <span className="text-slate-700">Payment Status</span>
+                            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getPaymentStatusClass(paymentStatus)}`}>
+                                {paymentStatus}
+                            </span>
+                        </div>
+
+                        <div className="grid gap-3 md:grid-cols-2">
+                            <div>
+                                <label htmlFor="paymentStatus" className="block text-sm font-medium text-slate-700">
+                                    Status
+                                </label>
+                                <select
+                                    id="paymentStatus"
+                                    value={paymentStatus}
+                                    onChange={(e) => setPaymentStatus(e.target.value)}
+                                    className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                >
+                                    <option value="Pending">Pending</option>
+                                    <option value="Partial">Partial</option>
+                                    <option value="Paid">Paid</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label htmlFor="amountPaid" className="block text-sm font-medium text-slate-700">
+                                    Amount Paid (₹)
+                                </label>
+                                <input
+                                    id="amountPaid"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={amountPaid}
+                                    onChange={(e) => setAmountPaid(e.target.value)}
+                                    className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                />
+                            </div>
+                        </div>
+
+                        {errors.payment && (
+                            <p className="text-sm text-red-600">{errors.payment}</p>
+                        )}
+
                         <div className="flex justify-between text-slate-700">
                             <span>Subtotal:</span>
                             <span className="font-medium">₹{calculateGrandTotal().toFixed(2)}</span>
                         </div>
+
+                        <div className="flex justify-between text-slate-700">
+                            <span>Amount Paid:</span>
+                            <span className="font-medium">₹{Number(amountPaid || 0).toFixed(2)}</span>
+                        </div>
+
+                        <div className="flex justify-between text-slate-700">
+                            <span>Balance:</span>
+                            <span className="font-medium">₹{calculateBalance().toFixed(2)}</span>
+                        </div>
+
                         <div className="border-t border-sky-200 pt-3">
                             <div className="flex justify-between">
                                 <span className="text-lg font-bold text-slate-900">Total Amount:</span>
