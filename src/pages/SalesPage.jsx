@@ -12,12 +12,12 @@ export function SalesPage() {
         try {
             setIsSubmitting(true)
             const result = await createSale(saleData)
-            
+
             showToast(
                 `Sale #${result.id} created successfully! Stock updated.`,
                 'success'
             )
-            
+
             // Reset form by calling reset method on ref
             if (formRef.current?.resetForm) {
                 formRef.current.resetForm()
