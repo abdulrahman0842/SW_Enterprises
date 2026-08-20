@@ -10,7 +10,7 @@ function getPaymentBadgeClass(status) {
     return 'bg-slate-100 text-slate-700'
 }
 
-export function SalesHistoryList({ sales, loading, error, onSelectSale, selectedSale, productsById }) {
+export function SalesHistoryList({ sales, loading, error, onSelectSale, selectedSale, productsById, onSendInvoice }) {
     if (loading) {
         return (
             <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-slate-500">
@@ -154,6 +154,16 @@ export function SalesHistoryList({ sales, loading, error, onSelectSale, selected
                         <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getPaymentBadgeClass(selectedSale.payment_status)}`}>
                             {selectedSale.payment_status}
                         </span>
+                    </div>
+
+                    <div className="mt-4 flex flex-wrap gap-3">
+                        <button
+                            type="button"
+                            onClick={() => onSendInvoice?.(selectedSale)}
+                            className="rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+                        >
+                            Send Invoice on WhatsApp
+                        </button>
                     </div>
 
                     <div className="mt-4 space-y-3">

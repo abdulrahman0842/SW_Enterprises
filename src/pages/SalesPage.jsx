@@ -5,6 +5,7 @@ import { Toast, useToast } from '../components/Toast'
 import { createSale } from '../services/salesService'
 import { fetchSalesHistory, normalizeSalesWithCounts } from '../services/salesHistoryService'
 import { fetchProducts } from '../services/productsService'
+import { openWhatsappInvoice } from '../utils/whatsapp'
 
 export function SalesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -13,6 +14,7 @@ export function SalesPage() {
     const [loadingSales, setLoadingSales] = useState(true)
     const [salesError, setSalesError] = useState('')
     const [productsById, setProductsById] = useState(new Map())
+    const [lastSavedSale, setLastSavedSale] = useState(null)
     const formRef = useRef(null)
     const { toasts, showToast, removeToast } = useToast()
 
@@ -50,6 +52,8 @@ export function SalesPage() {
         try {
             setIsSubmitting(true)
             const result = await createSale(saleData)
+            setLastSavedSale(result)
+            setSelectedSaleId(result.id)
 
             showToast(
                 `Sale #${result.id} created successfully! Stock updated.`,
@@ -71,6 +75,10 @@ export function SalesPage() {
 
     const selectedSale = sales.find((sale) => sale.id === selectedSaleId) || null
 
+    function handleSendInvoice(sale) {
+        openWhatsappInvoice(sale, productsById)
+    }
+
     return (
         <div className="space-y-6">
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -87,6 +95,18 @@ export function SalesPage() {
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
                 <SalesForm ref={formRef} onSubmit={handleSubmitSale} isLoading={isSubmitting} />
+
+                {lastSavedSale && (
+                    <div className="mt-5">
+                        <button
+                            type="button"
+                            onClick={() => handleSendInvoice(lastSavedSale)}
+                            className="w-full rounded-lg bg-emerald-600 px-4 py-3 text-base font-semibold text-white hover:bg-emerald-700"
+                        >
+                            Send Invoice on WhatsApp
+                        </button>
+                    </div>
+                )}
             </div>
 
             <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
@@ -109,6 +129,7 @@ export function SalesPage() {
                     onSelectSale={setSelectedSaleId}
                     selectedSale={selectedSale}
                     productsById={productsById}
+                    onSendInvoice={handleSendInvoice}
                 />
             </section>
 
