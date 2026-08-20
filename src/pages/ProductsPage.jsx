@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ProductForm } from '../components/ProductForm'
-import { ProductList } from '../components/ProductList'
+import { ProductForm } from '../components/product/ProductForm'
+import { ProductList } from '../components/product/ProductList'
 import { Toast, useToast } from '../components/Toast'
 import { createProduct, deleteProduct, fetchProducts, updateProduct } from '../services/productsService'
 
@@ -44,7 +44,7 @@ export function ProductsPage() {
     const [submitting, setSubmitting] = useState(false)
     const [deleting, setDeleting] = useState(null)
     const { toasts, showToast, removeToast } = useToast()
-
+    const [showForm, setShowForm] = useState(false)
     const isEditing = useMemo(() => editingId !== null, [editingId])
 
     useEffect(() => {
@@ -161,57 +161,72 @@ export function ProductsPage() {
         }
     }
 
+    function handleEditProduct(product) {
+        handleEdit(product)
+        setShowForm(true)
+    }
+    function handleAddProduct() {
+        resetForm()
+        setShowForm(true)
+    }
+    function handleCancelForm() {
+        resetForm()
+        setShowForm(false)
+    }
     return (
-        <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
-                    Product Module
-                </p>
-                <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
-                    Manage products
-                </h1>
-            </section>
-
-            <div className="grid gap-6 lg:grid-cols-[1fr_1.3fr]">
-                <ProductForm
-                    form={form}
-                    errors={errors}
-                    isEditing={isEditing}
-                    onChange={handleChange}
-                    onSubmit={handleSubmit}
-                    onCancel={resetForm}
-                    isSubmitting={submitting}
-                />
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                        <h2 className="text-xl font-semibold text-slate-900">Product list</h2>
-                        <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                            {products.length} items
-                        </span>
-                    </div>
-
-                    {loading ? (
-                        <div className="py-8 text-center text-slate-500">Loading products...</div>
-                    ) : (
-                        <ProductList
-                            products={products}
-                            onEdit={handleEdit}
-                            onDelete={handleDelete}
-                            deleting={deleting}
-                        />
-                    )}
+        <div className="space-y-4 sm:space-y-6">
+            {/* Page Header */}
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600"> Products </p>
+                    <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl"> Products </h1>
+                    <p className="mt-1 text-xs text-slate-500 sm:text-sm"> Manage your products and inventory details </p>
                 </div>
+                <button type="button" onClick={handleAddProduct} className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98] sm:w-auto" >
+                    <span className="text-lg leading-none">+</span> Add Product </button>
             </div>
-
-            {toasts.map((toast) => (
-                <Toast
-                    key={toast.id}
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => removeToast(toast.id)}
-                />
-            ))}
-        </div>
-    )
+            {/* Product Form */}
+            {showForm && (
+                <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3 sm:px-5">
+                        <div>
+                            <h2 className="text-base font-semibold text-slate-900 sm:text-lg"> {isEditing ? 'Edit Product' : 'Add Product'} </h2>
+                            <p className="mt-0.5 text-xs text-slate-500"> {isEditing ? 'Update product information' : 'Enter the product details below'} </p>
+                        </div>
+                        <button type="button" onClick={handleCancelForm} className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700" aria-label="Close form" > ✕ </button>
+                    </div>
+                    <div className="p-4 sm:p-5">
+                        <ProductForm form={form} errors={errors} isEditing={isEditing} onChange={handleChange} onSubmit={handleSubmit} onCancel={handleCancelForm} isSubmitting={submitting} />
+                    </div>
+                </section>)}
+            {/* Product List */}
+            <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                {/* List Header */}
+                <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+                    <div>
+                        <h2 className="text-base font-semibold text-slate-900 sm:text-lg"> Product List </h2>
+                        <p className="mt-0.5 text-xs text-slate-500"> All products in your catalog </p> </div>
+                    <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        {products.length}{' '} {products.length === 1 ? 'product' : 'products'} </span>
+                </div>
+                {/* List Content */}
+                <div className="p-3 sm:p-5">
+                    {loading ? (<div className="flex min-h-40 items-center justify-center"> <div className="text-center">
+                        <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-slate-700" />
+                        <p className="mt-3 text-sm text-slate-500"> Loading products... </p>
+                    </div>
+                    </div>) : products.length === 0 ? (<div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-10 text-center">
+                        <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-white text-lg shadow-sm"> 📦 </div>
+                        <h3 className="mt-3 text-sm font-semibold text-slate-900"> No products yet </h3>
+                                             // eslint-disable-next-line no-undef
+                        <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500 sm:text-sm"> Add your first product to start managing your inventory. </p>
+                        <button type="button" onClick={handleAddProduct} className="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 sm:text-sm" > Add Product </button>
+                    </div>) : (<ProductList products={products} onEdit={handleEditProduct} onDelete={handleDelete} deleting={deleting} />)}
+                </div>
+            </section>
+            {/* Toasts */}
+            <div className="fixed bottom-4 right-4 z-50 flex max-w-[calc(100vw-2rem)] flex-col gap-2 sm:right-6">
+                {toasts.map((toast) => (<Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />))}
+            </div>
+        </div>)
 }
