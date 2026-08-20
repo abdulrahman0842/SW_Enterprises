@@ -57,7 +57,6 @@ export function AuthProvider({ children }) {
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        console.log('DATA', data, "ERROR", error)
         if (error) {
             throw error
         }

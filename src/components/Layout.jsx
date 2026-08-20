@@ -25,7 +25,7 @@ export function Layout({ children }) {
                     <div className="flex items-center justify-between gap-3 px-4 py-4 sm:px-6 lg:px-8">
                         <div>
                             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
-                                Enterprise Suite
+                                SW Enterprises 
                             </p>
                             <h1 className="text-xl font-bold text-slate-900">SW Enterprise ERP</h1>
                         </div>
