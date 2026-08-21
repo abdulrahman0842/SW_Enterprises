@@ -282,102 +282,191 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
     }
 
     if (loadingData) {
-        return <div className="py-8 text-center text-slate-500">Loading form data...</div>
-    }
-
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Customer Section */}
-            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
-                <h2 className="text-lg font-semibold text-slate-900">Customer Details</h2>
+        <div className="flex min-h-[220px] items-center justify-center">
+            <div className="text-center">
+                <div className="mx-auto h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-sky-600" />
 
-                {/* Customer Type Selection */}
-                <div className="mt-4 space-y-3">
-                    <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                            type="radio"
-                            name="customerType"
-                            value="existing"
-                            checked={customerType === 'existing'}
-                            onChange={() => handleCustomerTypeChange('existing')}
-                            className="h-4 w-4"
-                        />
-                        <span className="text-sm font-medium text-slate-700">
-                            Select existing customer
-                        </span>
-                    </label>
+                <p className="mt-3 text-sm text-slate-500">
+                    Loading sale form...
+                </p>
+            </div>
+        </div>
+    )
+}
 
-                    <label className="flex items-center gap-3 cursor-pointer">
-                        <input
-                            type="radio"
-                            name="customerType"
-                            value="new"
-                            checked={customerType === 'new'}
-                            onChange={() => handleCustomerTypeChange('new')}
-                            className="h-4 w-4"
-                        />
-                        <span className="text-sm font-medium text-slate-700">
-                            One-time customer
-                        </span>
-                    </label>
+return (
+    <form
+        onSubmit={handleSubmit}
+        className="space-y-5"
+    >
+
+        {/* =========================
+            CUSTOMER
+        ========================== */}
+        <section className="rounded-xl border border-slate-200 bg-white">
+
+            <div className="border-b border-slate-100 px-4 py-3.5 sm:px-5">
+                <div>
+                    <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+                        Customer
+                    </h2>
+
+                    <p className="mt-0.5 text-xs text-slate-500">
+                        Select an existing customer or enter a one-time customer
+                    </p>
+                </div>
+            </div>
+
+            <div className="space-y-4 p-4 sm:p-5">
+
+                {/* Customer Type */}
+                <div className="grid grid-cols-2 gap-2">
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            handleCustomerTypeChange(
+                                'existing'
+                            )
+                        }
+                        className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                            customerType ===
+                            'existing'
+                                ? 'border-sky-300 bg-sky-50 text-sky-700'
+                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        }`}
+                    >
+                        Existing Customer
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            handleCustomerTypeChange(
+                                'new'
+                            )
+                        }
+                        className={`rounded-xl border px-3 py-2.5 text-sm font-medium transition ${
+                            customerType === 'new'
+                                ? 'border-sky-300 bg-sky-50 text-sky-700'
+                                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        }`}
+                    >
+                        One-time Customer
+                    </button>
                 </div>
 
-                {/* Existing Customer Selection */}
+                {/* Existing Customer */}
                 {customerType === 'existing' && (
-                    <div className="mt-4 space-y-4">
+                    <div className="space-y-3">
+
                         <div>
-                            <label htmlFor="customer" className="block text-sm font-medium text-slate-700">
-                                Select Customer <span className="text-red-500">*</span>
+                            <label
+                                htmlFor="customer"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Select Customer
+                                <span className="ml-1 text-rose-500">
+                                    *
+                                </span>
                             </label>
+
                             <select
                                 id="customer"
-                                value={selectedCustomerId || ''}
-                                onChange={(e) => handleSelectCustomer(parseInt(e.target.value))}
-                                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                value={
+                                    selectedCustomerId ||
+                                    ''
+                                }
+                                onChange={(e) =>
+                                    handleSelectCustomer(
+                                        parseInt(
+                                            e.target.value
+                                        )
+                                    )
+                                }
+                                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm text-slate-900 outline-none transition focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
                             >
-                                <option value="">Choose a customer...</option>
-                                {customers.map((customer) => (
-                                    <option key={customer.id} value={customer.id}>
-                                        {customer.name} ({customer.contact})
-                                    </option>
-                                ))}
+                                <option value="">
+                                    Choose a customer...
+                                </option>
+
+                                {customers.map(
+                                    (customer) => (
+                                        <option
+                                            key={
+                                                customer.id
+                                            }
+                                            value={
+                                                customer.id
+                                            }
+                                        >
+                                            {customer.name}
+                                            {customer.contact
+                                                ? ` (${customer.contact})`
+                                                : ''}
+                                        </option>
+                                    )
+                                )}
                             </select>
+
                             {errors.customer && (
-                                <p className="mt-1 text-sm text-red-600">{errors.customer}</p>
+                                <p className="mt-1.5 text-xs text-rose-600">
+                                    {errors.customer}
+                                </p>
                             )}
                         </div>
 
                         {selectedCustomer && (
-                            <div className="space-y-3 rounded-lg bg-white p-3">
-                                <div>
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Name
-                                    </p>
-                                    <p className="mt-1 font-medium text-slate-900">
-                                        {selectedCustomer.name}
-                                    </p>
-                                </div>
+                            <div className="rounded-xl border border-sky-100 bg-sky-50/60 p-3">
+                                <div className="grid gap-3 sm:grid-cols-2">
 
-                                <div>
-                                    <label htmlFor="contactEdit" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Contact
-                                    </label>
-                                    <input
-                                        id="contactEdit"
-                                        type="text"
-                                        value={customerContact}
-                                        onChange={(e) => setCustomerContact(e.target.value)}
-                                        className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                    />
+                                    <div>
+                                        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                                            Customer
+                                        </p>
+
+                                        <p className="mt-1 text-sm font-semibold text-slate-900">
+                                            {
+                                                selectedCustomer.name
+                                            }
+                                        </p>
+                                    </div>
+
+                                    <div>
+                                        <label
+                                            htmlFor="contactEdit"
+                                            className="text-[10px] font-semibold uppercase tracking-wider text-slate-500"
+                                        >
+                                            Contact
+                                        </label>
+
+                                        <input
+                                            id="contactEdit"
+                                            type="text"
+                                            value={
+                                                customerContact
+                                            }
+                                            onChange={(e) =>
+                                                setCustomerContact(
+                                                    e.target.value
+                                                )
+                                            }
+                                            className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                                        />
+                                    </div>
                                 </div>
 
                                 {selectedCustomer.address && (
-                                    <div>
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                    <div className="mt-3 border-t border-sky-100 pt-3">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
                                             Address
                                         </p>
-                                        <p className="mt-1 text-sm text-slate-600">
-                                            {selectedCustomer.address}
+
+                                        <p className="mt-1 text-xs text-slate-600">
+                                            {
+                                                selectedCustomer.address
+                                            }
                                         </p>
                                     </div>
                                 )}
@@ -386,280 +475,480 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
                     </div>
                 )}
 
-                {/* One-time Customer Input */}
+                {/* One-time Customer */}
                 {customerType === 'new' && (
-                    <div className="mt-4 space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-2">
+
                         <div>
-                            <label htmlFor="newCustomerName" className="block text-sm font-medium text-slate-700">
-                                Customer Name <span className="text-red-500">*</span>
+                            <label
+                                htmlFor="newCustomerName"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Customer Name
+                                <span className="ml-1 text-rose-500">
+                                    *
+                                </span>
                             </label>
+
                             <input
                                 id="newCustomerName"
                                 type="text"
-                                value={selectedCustomer?.name || ''}
-                                onChange={(e) =>
-                                    setSelectedCustomer((prev) => ({
-                                        ...prev,
-                                        name: e.target.value,
-                                    }))
+                                value={
+                                    selectedCustomer?.name ||
+                                    ''
                                 }
-                                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                onChange={(e) =>
+                                    setSelectedCustomer(
+                                        (prev) => ({
+                                            ...prev,
+                                            name: e.target
+                                                .value,
+                                        })
+                                    )
+                                }
                                 placeholder="Customer name"
+                                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
                             />
+
                             {errors.customerName && (
-                                <p className="mt-1 text-sm text-red-600">{errors.customerName}</p>
+                                <p className="mt-1.5 text-xs text-rose-600">
+                                    {
+                                        errors.customerName
+                                    }
+                                </p>
                             )}
                         </div>
 
                         <div>
-                            <label htmlFor="newCustomerContact" className="block text-sm font-medium text-slate-700">
-                                Customer Contact <span className="text-red-500">*</span>
+                            <label
+                                htmlFor="newCustomerContact"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Contact
+                                <span className="ml-1 text-rose-500">
+                                    *
+                                </span>
                             </label>
+
                             <input
                                 id="newCustomerContact"
                                 type="text"
-                                value={customerContact}
-                                onChange={(e) => setCustomerContact(e.target.value)}
-                                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                placeholder="Phone, email, or other contact"
+                                value={
+                                    customerContact
+                                }
+                                onChange={(e) =>
+                                    setCustomerContact(
+                                        e.target.value
+                                    )
+                                }
+                                placeholder="Phone or contact"
+                                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
                             />
+
                             {errors.customerContact && (
-                                <p className="mt-1 text-sm text-red-600">{errors.customerContact}</p>
+                                <p className="mt-1.5 text-xs text-rose-600">
+                                    {
+                                        errors.customerContact
+                                    }
+                                </p>
                             )}
                         </div>
                     </div>
                 )}
-            </section>
+            </div>
+        </section>
 
-            {/* Products Items Section */}
-            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4 sm:p-6">
-                <h2 className="text-lg font-semibold text-slate-900">Add Products</h2>
+        {/* =========================
+            PRODUCTS
+        ========================== */}
+        <section className="rounded-xl border border-slate-200 bg-white">
 
-                {/* Add Item Form */}
-                <div className="mt-4 space-y-3 rounded-lg bg-white p-4">
+            <div className="border-b border-slate-100 px-4 py-3.5 sm:px-5">
+                <div className="flex items-center justify-between gap-3">
                     <div>
-                        <label htmlFor="product" className="block text-sm font-medium text-slate-700">
-                            Product <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            id="product"
-                            value={selectedProductId}
-                            onChange={(e) => {
-                                setSelectedProductId(e.target.value)
-                                if (e.target.value) {
-                                    const product = products.find(
-                                        (p) => p.id === parseInt(e.target.value)
-                                    )
-                                    if (product) {
-                                        setAddItemRate(product.rate.toString())
-                                    }
-                                }
-                                setErrors((prev) => {
-                                    const { addItem: _, ...rest } = prev
-                                    return rest
-                                })
-                            }}
-                            className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                        >
-                            <option value="">Choose a product...</option>
-                            {products.map((product) => {
-                                const isAdded = items.some((item) => item.product_id === product.id)
-                                return (
-                                    <option key={product.id} value={product.id}>
-                                        {product.name}
-                                        {isAdded ? ' (already added)' : ''}
-                                    </option>
-                                )
-                            })}
-                        </select>
-                        {errors.addItem?.product && (
-                            <p className="mt-1 text-sm text-red-600">{errors.addItem.product}</p>
-                        )}
+                        <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+                            Products
+                        </h2>
+
+                        <p className="mt-0.5 text-xs text-slate-500">
+                            Add products to this sale
+                        </p>
                     </div>
 
-                    {selectedProductId && (
-                        <div className="rounded-lg bg-sky-50 p-3">
-                            {(() => {
-                                const product = products.find(
-                                    (p) => p.id === parseInt(selectedProductId)
-                                )
-                                return (
-                                    <>
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                            Product Info
-                                        </p>
-                                        <div className="mt-2 grid gap-2 text-sm">
-                                            <div className="flex justify-between">
-                                                <span className="text-slate-600">Qty/Box:</span>
-                                                <span className="font-medium text-slate-900">
-                                                    {product.quantity_per_box}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-slate-600">Stock:</span>
-                                                <span className="font-medium text-slate-900">
-                                                    {product.stock} boxes / {product.stock * product.quantity_per_box} units
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span className="text-slate-600">MRP:</span>
-                                                <span className="font-medium text-slate-900">
-                                                    ₹{product.mrp.toFixed(2)}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </>
-                                )
-                            })()}
-                        </div>
+                    {items.length > 0 && (
+                        <span className="rounded-full bg-sky-50 px-2.5 py-1 text-[10px] font-semibold text-sky-700">
+                            {items.length}{' '}
+                            {items.length === 1
+                                ? 'item'
+                                : 'items'}
+                        </span>
                     )}
+                </div>
+            </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+            <div className="p-4 sm:p-5">
+
+                {/* Add Product */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 sm:p-4">
+
+                    <div className="grid gap-3 lg:grid-cols-[1.5fr_0.7fr_0.8fr_auto]">
+
                         <div>
-                            <label htmlFor="quantity" className="block text-sm font-medium text-slate-700">
-                                Quantity (boxes) <span className="text-red-500">*</span>
+                            <label
+                                htmlFor="product"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Product
                             </label>
-                            <input
-                                id="quantity"
-                                type="number"
-                                min="1"
-                                value={addItemQuantity}
+
+                            <select
+                                id="product"
+                                value={
+                                    selectedProductId
+                                }
                                 onChange={(e) => {
-                                    setAddItemQuantity(e.target.value)
-                                    setErrors((prev) => {
-                                        const { addItem: _, ...rest } = prev
-                                        return rest
-                                    })
+                                    setSelectedProductId(
+                                        e.target.value
+                                    )
+
+                                    if (
+                                        e.target.value
+                                    ) {
+                                        const product =
+                                            products.find(
+                                                (p) =>
+                                                    p.id ===
+                                                    parseInt(
+                                                        e.target
+                                                            .value
+                                                    )
+                                            )
+
+                                        if (product) {
+                                            setAddItemRate(
+                                                product.rate.toString()
+                                            )
+                                        }
+                                    }
+
+                                    setErrors(
+                                        (prev) => {
+                                            const {
+                                                addItem:
+                                                    _,
+                                                ...rest
+                                            } = prev
+
+                                            return rest
+                                        }
+                                    )
                                 }}
-                                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                placeholder="1"
-                            />
-                            {errors.addItem?.quantity && (
-                                <p className="mt-1 text-sm text-red-600">{errors.addItem.quantity}</p>
+                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            >
+                                <option value="">
+                                    Choose product...
+                                </option>
+
+                                {products.map(
+                                    (product) => {
+                                        const isAdded =
+                                            items.some(
+                                                (item) =>
+                                                    item.product_id ===
+                                                    product.id
+                                            )
+
+                                        return (
+                                            <option
+                                                key={
+                                                    product.id
+                                                }
+                                                value={
+                                                    product.id
+                                                }
+                                            >
+                                                {
+                                                    product.name
+                                                }
+                                                {isAdded
+                                                    ? ' (added)'
+                                                    : ''}
+                                            </option>
+                                        )
+                                    }
+                                )}
+                            </select>
+
+                            {errors.addItem
+                                ?.product && (
+                                <p className="mt-1 text-xs text-rose-600">
+                                    {
+                                        errors
+                                            .addItem
+                                            .product
+                                    }
+                                </p>
                             )}
                         </div>
 
                         <div>
-                            <label htmlFor="rate" className="block text-sm font-medium text-slate-700">
-                                Selling Rate (₹) <span className="text-red-500">*</span>
+                            <label
+                                htmlFor="quantity"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Boxes
                             </label>
+
+                            <input
+                                id="quantity"
+                                type="number"
+                                min="1"
+                                value={
+                                    addItemQuantity
+                                }
+                                onChange={(e) =>
+                                    setAddItemQuantity(
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="rate"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Rate (₹)
+                            </label>
+
                             <input
                                 id="rate"
                                 type="number"
                                 step="0.01"
                                 min="0"
                                 value={addItemRate}
-                                onChange={(e) => {
-                                    setAddItemRate(e.target.value)
-                                    setErrors((prev) => {
-                                        const { addItem: _, ...rest } = prev
-                                        return rest
-                                    })
-                                }}
-                                className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                placeholder="0.00"
+                                onChange={(e) =>
+                                    setAddItemRate(
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100"
                             />
-                            {errors.addItem?.rate && (
-                                <p className="mt-1 text-sm text-red-600">{errors.addItem.rate}</p>
-                            )}
+                        </div>
+
+                        <div className="flex items-end">
+                            <button
+                                type="button"
+                                onClick={
+                                    handleAddItem
+                                }
+                                className="w-full rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-700 lg:w-auto"
+                            >
+                                + Add
+                            </button>
                         </div>
                     </div>
 
-                    <button
-                        type="button"
-                        onClick={handleAddItem}
-                        className="w-full rounded-lg bg-sky-600 px-4 py-2 text-sm font-semibold text-white hover:bg-sky-700"
-                    >
-                        + Add Product
-                    </button>
+                    {/* Product Info */}
+                    {selectedProductId && (
+                        <div className="mt-3 rounded-lg border border-sky-100 bg-sky-50 px-3 py-2.5">
+                            {(() => {
+                                const product =
+                                    products.find(
+                                        (p) =>
+                                            p.id ===
+                                            parseInt(
+                                                selectedProductId
+                                            )
+                                    )
+
+                                if (!product) {
+                                    return null
+                                }
+
+                                return (
+                                    <div className="flex flex-wrap gap-x-5 gap-y-1 text-xs">
+                                        <span>
+                                            <span className="text-slate-500">
+                                                Stock:
+                                            </span>{' '}
+                                            <strong>
+                                                {
+                                                    product.stock
+                                                }{' '}
+                                                boxes
+                                            </strong>
+                                        </span>
+
+                                        <span>
+                                            <span className="text-slate-500">
+                                                Per box:
+                                            </span>{' '}
+                                            <strong>
+                                                {
+                                                    product.quantity_per_box
+                                                }
+                                            </strong>
+                                        </span>
+
+                                        <span>
+                                            <span className="text-slate-500">
+                                                MRP:
+                                            </span>{' '}
+                                            <strong>
+                                                ₹
+                                                {Number(
+                                                    product.mrp ||
+                                                    0
+                                                ).toFixed(
+                                                    2
+                                                )}
+                                            </strong>
+                                        </span>
+                                    </div>
+                                )
+                            })()}
+                        </div>
+                    )}
                 </div>
 
-                {/* Items List */}
+                {/* Items */}
                 {items.length > 0 && (
-                    <div className="mt-4 space-y-3">
-                        <p className="text-sm font-semibold text-slate-700">
-                            {items.length} product{items.length !== 1 ? 's' : ''} added
-                        </p>
+                    <div className="mt-4 space-y-2.5">
+
                         {items.map((item) => (
-                            <div key={item.product_id} className="rounded-lg border border-slate-300 bg-white p-4">
+                            <div
+                                key={
+                                    item.product_id
+                                }
+                                className="rounded-xl border border-slate-200 bg-white p-3 sm:p-4"
+                            >
                                 <div className="flex items-start justify-between gap-3">
-                                    <div className="flex-1">
-                                        <h3 className="font-semibold text-slate-900">{item.product_name}</h3>
-                                        <p className="mt-1 text-xs text-slate-500">
-                                            {item.quantity} boxes × {item.quantity_per_box} units/box ={' '}
-                                            {calculateBottles(item)} units
+
+                                    <div className="min-w-0">
+                                        <p className="truncate text-sm font-semibold text-slate-900">
+                                            {
+                                                item.product_name
+                                            }
+                                        </p>
+
+                                        <p className="mt-0.5 text-xs text-slate-500">
+                                            {
+                                                item.quantity
+                                            }{' '}
+                                            boxes ×{' '}
+                                            {
+                                                item.quantity_per_box
+                                            }{' '}
+                                            units
                                         </p>
                                     </div>
+
                                     <button
                                         type="button"
-                                        onClick={() => handleRemoveItem(item.product_id)}
-                                        className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
-                                        title="Remove"
+                                        onClick={() =>
+                                            handleRemoveItem(
+                                                item.product_id
+                                            )
+                                        }
+                                        className="shrink-0 rounded-lg p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                                        title="Remove product"
                                     >
-                                        ✕
+                                        ×
                                     </button>
                                 </div>
 
-                                <div className="mt-3 grid grid-cols-3 gap-2 border-t border-slate-200 pt-3 sm:grid-cols-5">
+                                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                            Qty
-                                        </label>
+                                        <p className="text-[10px] font-semibold uppercase text-slate-400">
+                                            Quantity
+                                        </p>
+
                                         <input
                                             type="number"
                                             min="1"
-                                            value={item.quantity}
-                                            onChange={(e) =>
-                                                handleUpdateItem(item.product_id, {
-                                                    quantity: parseInt(e.target.value) || 1,
-                                                })
+                                            value={
+                                                item.quantity
                                             }
-                                            className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-center text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                            onChange={(
+                                                e
+                                            ) =>
+                                                handleUpdateItem(
+                                                    item.product_id,
+                                                    {
+                                                        quantity:
+                                                            parseInt(
+                                                                e
+                                                                    .target
+                                                                    .value
+                                                            ) ||
+                                                            1,
+                                                    }
+                                                )
+                                            }
+                                            className="mt-1 w-full rounded-lg border border-slate-200 px-2.5 py-2 text-sm outline-none focus:border-sky-500"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                            Bottles
-                                        </label>
-                                        <div className="mt-1.5 rounded-lg bg-slate-100 px-2 py-1.5 text-center text-sm font-medium text-slate-900">
-                                            {calculateBottles(item)}
+                                        <p className="text-[10px] font-semibold uppercase text-slate-400">
+                                            Units
+                                        </p>
+
+                                        <div className="mt-1 rounded-lg bg-slate-50 px-2.5 py-2 text-center text-sm font-medium text-slate-700">
+                                            {calculateBottles(
+                                                item
+                                            )}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                            Rate (₹)
-                                        </label>
+                                        <p className="text-[10px] font-semibold uppercase text-slate-400">
+                                            Rate
+                                        </p>
+
                                         <input
                                             type="number"
                                             step="0.01"
                                             min="0"
-                                            value={item.rate}
-                                            onChange={(e) =>
-                                                handleUpdateItem(item.product_id, {
-                                                    rate: parseFloat(e.target.value) || 0,
-                                                })
+                                            value={
+                                                item.rate
                                             }
-                                            className="mt-1 block w-full rounded-lg border border-slate-300 px-2 py-1.5 text-center text-sm text-slate-900 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+                                            onChange={(
+                                                e
+                                            ) =>
+                                                handleUpdateItem(
+                                                    item.product_id,
+                                                    {
+                                                        rate:
+                                                            parseFloat(
+                                                                e
+                                                                    .target
+                                                                    .value
+                                                            ) ||
+                                                            0,
+                                                    }
+                                                )
+                                            }
+                                            className="mt-1 w-full rounded-lg border border-slate-200 px-2.5 py-2 text-sm outline-none focus:border-sky-500"
                                         />
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                            MRP (₹)
-                                        </label>
-                                        <div className="mt-1.5 rounded-lg bg-slate-100 px-2 py-1.5 text-center text-xs font-medium text-slate-900">
-                                            {item.mrp.toFixed(2)}
-                                        </div>
-                                    </div>
+                                        <p className="text-[10px] font-semibold uppercase text-slate-400">
+                                            Total
+                                        </p>
 
-                                    <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                            Total (₹)
-                                        </label>
-                                        <div className="mt-1.5 rounded-lg bg-sky-100 px-2 py-1.5 text-center text-sm font-bold text-sky-900">
-                                            {calculateItemTotal(item).toFixed(2)}
+                                        <div className="mt-1 rounded-lg bg-sky-50 px-2.5 py-2 text-center text-sm font-bold text-sky-700">
+                                            ₹
+                                            {calculateItemTotal(
+                                                item
+                                            ).toFixed(
+                                                2
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -669,95 +958,193 @@ export const SalesForm = forwardRef(function SalesForm({ onSubmit, isLoading = f
                 )}
 
                 {errors.items && (
-                    <div className="mt-3 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+                    <div className="mt-3 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-xs text-rose-700">
                         {errors.items}
                     </div>
                 )}
-            </section>
+            </div>
+        </section>
 
-            {/* Order Summary */}
-            {items.length > 0 && (
-                <section className="rounded-2xl border-2 border-sky-300 bg-sky-50 p-4 sm:p-6">
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between gap-3">
-                            <span className="text-slate-700">Payment Status</span>
-                            <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getPaymentStatusClass(paymentStatus)}`}>
-                                {paymentStatus}
-                            </span>
+        {/* =========================
+            PAYMENT SUMMARY
+        ========================== */}
+        {items.length > 0 && (
+            <section className="rounded-xl border border-slate-200 bg-white">
+
+                <div className="border-b border-slate-100 px-4 py-3.5 sm:px-5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+                                Payment
+                            </h2>
+
+                            <p className="mt-0.5 text-xs text-slate-500">
+                                Payment status and amount
+                            </p>
                         </div>
 
-                        <div className="grid gap-3 md:grid-cols-2">
-                            <div>
-                                <label htmlFor="paymentStatus" className="block text-sm font-medium text-slate-700">
-                                    Status
-                                </label>
-                                <select
-                                    id="paymentStatus"
-                                    value={paymentStatus}
-                                    onChange={(e) => setPaymentStatus(e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                >
-                                    <option value="Pending">Pending</option>
-                                    <option value="Partial">Partial</option>
-                                    <option value="Paid">Paid</option>
-                                </select>
+                        <span
+                            className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${getPaymentStatusClass(
+                                paymentStatus
+                            )}`}
+                        >
+                            {paymentStatus}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="space-y-4 p-4 sm:p-5">
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+
+                        <div>
+                            <label
+                                htmlFor="paymentStatus"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Payment Status
+                            </label>
+
+                            <select
+                                id="paymentStatus"
+                                value={
+                                    paymentStatus
+                                }
+                                onChange={(e) =>
+                                    setPaymentStatus(
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
+                            >
+                                <option value="Pending">
+                                    Pending
+                                </option>
+
+                                <option value="Partial">
+                                    Partial
+                                </option>
+
+                                <option value="Paid">
+                                    Paid
+                                </option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="amountPaid"
+                                className="mb-1.5 block text-xs font-semibold text-slate-700"
+                            >
+                                Amount Paid (₹)
+                            </label>
+
+                            <input
+                                id="amountPaid"
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={
+                                    amountPaid
+                                }
+                                onChange={(e) =>
+                                    setAmountPaid(
+                                        e.target.value
+                                    )
+                                }
+                                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-sky-500 focus:bg-white focus:ring-2 focus:ring-sky-100"
+                            />
+                        </div>
+                    </div>
+
+                    {errors.payment && (
+                        <p className="rounded-lg bg-rose-50 px-3 py-2 text-xs text-rose-600">
+                            {errors.payment}
+                        </p>
+                    )}
+
+                    <div className="rounded-xl bg-slate-50 p-3.5">
+                        <div className="space-y-2 text-sm">
+
+                            <div className="flex justify-between gap-3 text-slate-600">
+                                <span>
+                                    Subtotal
+                                </span>
+
+                                <span className="font-medium text-slate-900">
+                                    ₹
+                                    {calculateGrandTotal().toFixed(
+                                        2
+                                    )}
+                                </span>
                             </div>
 
-                            <div>
-                                <label htmlFor="amountPaid" className="block text-sm font-medium text-slate-700">
-                                    Amount Paid (₹)
-                                </label>
-                                <input
-                                    id="amountPaid"
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    value={amountPaid}
-                                    onChange={(e) => setAmountPaid(e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
-                                />
+                            <div className="flex justify-between gap-3 text-slate-600">
+                                <span>
+                                    Amount Paid
+                                </span>
+
+                                <span className="font-medium text-slate-900">
+                                    ₹
+                                    {Number(
+                                        amountPaid ||
+                                            0
+                                    ).toFixed(
+                                        2
+                                    )}
+                                </span>
                             </div>
-                        </div>
 
-                        {errors.payment && (
-                            <p className="text-sm text-red-600">{errors.payment}</p>
-                        )}
+                            <div className="flex justify-between gap-3 text-slate-600">
+                                <span>
+                                    Balance
+                                </span>
 
-                        <div className="flex justify-between text-slate-700">
-                            <span>Subtotal:</span>
-                            <span className="font-medium">₹{calculateGrandTotal().toFixed(2)}</span>
-                        </div>
+                                <span className="font-medium text-amber-700">
+                                    ₹
+                                    {calculateBalance().toFixed(
+                                        2
+                                    )}
+                                </span>
+                            </div>
 
-                        <div className="flex justify-between text-slate-700">
-                            <span>Amount Paid:</span>
-                            <span className="font-medium">₹{Number(amountPaid || 0).toFixed(2)}</span>
-                        </div>
+                            <div className="mt-2 flex items-center justify-between border-t border-slate-200 pt-3">
+                                <span className="font-semibold text-slate-900">
+                                    Total
+                                </span>
 
-                        <div className="flex justify-between text-slate-700">
-                            <span>Balance:</span>
-                            <span className="font-medium">₹{calculateBalance().toFixed(2)}</span>
-                        </div>
-
-                        <div className="border-t border-sky-200 pt-3">
-                            <div className="flex justify-between">
-                                <span className="text-lg font-bold text-slate-900">Total Amount:</span>
-                                <span className="text-2xl font-bold text-sky-600">
-                                    ₹{calculateGrandTotal().toFixed(2)}
+                                <span className="text-xl font-bold text-sky-700">
+                                    ₹
+                                    {calculateGrandTotal().toFixed(
+                                        2
+                                    )}
                                 </span>
                             </div>
                         </div>
                     </div>
-                </section>
-            )}
+                </div>
+            </section>
+        )}
 
-            {/* Submit Button */}
-            <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full rounded-lg bg-sky-600 px-4 py-3 text-base font-semibold text-white shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:bg-slate-300 disabled:text-slate-500"
-            >
-                {isLoading ? 'Processing...' : 'Create Sale'}
-            </button>
-        </form>
-    )
+        {/* =========================
+            SUBMIT
+        ========================== */}
+        <button
+            type="submit"
+            disabled={
+                isLoading ||
+                items.length === 0
+            }
+            className="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500"
+        >
+            {isLoading
+                ? 'Processing Sale...'
+                : `Create Sale${
+                      items.length > 0
+                          ? ` • ₹${calculateGrandTotal().toFixed(2)}`
+                          : ''
+                  }`}
+        </button>
+    </form>
+)
 })
