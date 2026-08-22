@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { SalesForm } from '../components/SalesForm'
+import { SalesForm } from '../components/sale/SalesForm'
 import { SalesHistoryList } from '../components/SalesHistoryList'
 import { Toast, useToast } from '../components/Toast'
 import { createSale } from '../services/salesService'
@@ -110,7 +110,7 @@ export function SalesPage() {
 
             showToast(
                 error.message ||
-                    'Failed to create sale',
+                'Failed to create sale',
                 'error'
             )
         } finally {
@@ -159,11 +159,10 @@ export function SalesPage() {
                     className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                 >
                     <svg
-                        className={`h-4 w-4 ${
-                            loadingSales
+                        className={`h-4 w-4 ${loadingSales
                                 ? 'animate-spin'
                                 : ''
-                        }`}
+                            }`}
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
