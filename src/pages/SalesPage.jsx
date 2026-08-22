@@ -137,71 +137,68 @@ export function SalesPage() {
             {/* =========================
                 PAGE HEADER
             ========================== */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
-                        Sales
-                    </p>
+           <div className="flex items-center justify-between gap-3">
+    <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
+            Sales
+        </p>
 
-                    <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
-                        Create Sale
-                    </h1>
+        <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
+            Create Sale
+        </h1>
 
-                    <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                        Create sales and manage customer orders
-                    </p>
-                </div>
+        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+            Create sales and manage customer orders
+        </p>
+    </div>
 
-                <button
-                    type="button"
-                    onClick={loadSalesHistory}
-                    disabled={loadingSales}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
-                >
-                    <svg
-                        className={`h-4 w-4 ${loadingSales
-                                ? 'animate-spin'
-                                : ''
-                            }`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0118 6.5L20 9M18.5 15A7 7 0 016 17.5L4 15"
-                        />
-                    </svg>
-
-                    {loadingSales
-                        ? 'Refreshing...'
-                        : 'Refresh'}
-                </button>
-            </div>
+    <button
+        type="button"
+        onClick={loadSalesHistory}
+        disabled={loadingSales}
+        title="Refresh sales"
+        aria-label="Refresh sales"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-sky-600 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+        <svg
+            className={`h-4 w-4 ${
+                loadingSales ? 'animate-spin' : ''
+            }`}
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+        >
+            <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0118 6.5L20 9M18.5 15A7 7 0 016 17.5L4 15"
+            />
+        </svg>
+    </button>
+</div>
 
             {/* =========================
                 SALE FORM
             ========================== */}
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-4 py-4 sm:px-5">
-                    <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-                                New Sale
-                            </h2>
+               <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
+    <div className="flex items-center gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+            +
+        </div>
 
-                            <p className="mt-0.5 text-xs text-slate-500">
-                                Add products and customer details
-                            </p>
-                        </div>
+        <div className="min-w-0">
+            <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
+                New Sale
+            </h2>
 
-                        <span className="rounded-full bg-sky-50 px-3 py-1 text-[11px] font-semibold text-sky-700">
-                            Sale
-                        </span>
-                    </div>
-                </div>
+            <p className="mt-0.5 text-xs text-slate-500">
+                Create a new sale
+            </p>
+        </div>
+    </div>
+</div>
 
                 <div className="p-4 sm:p-5">
                     <SalesForm
