@@ -28,15 +28,16 @@ export function SaleItems({
 
     function handleAddProduct() {
         if (!selectedProduct) return
-
+       
         const boxes = Number(quantity)
-        const saleRate = Number(mrp)
+        const salePrice = Number(mrp)
+        const purchaseRate = Number(selectedProduct.rate || 0)
 
-        if (!saleRate || saleRate < 0) {
+        if (!Number.isFinite(salePrice) || salePrice < 0) {
             return
         }
 
-        if (boxes < 1) {
+        if (!Number.isInteger(boxes) || boxes < 1) {
             return
         }
 
@@ -55,7 +56,8 @@ export function SaleItems({
                         ? {
                             ...item,
                             quantity: boxes,
-                            rate: saleRate,
+                            mrp: salePrice,
+                            rate: purchaseRate,
                         }
                         : item
                 )
@@ -67,7 +69,8 @@ export function SaleItems({
                     product_id: selectedProduct.id,
                     product_name: selectedProduct.name,
                     quantity: boxes,
-                    rate: saleRate,
+                    rate: purchaseRate,
+                    mrp: salePrice,
                 },
             ])
         }
@@ -135,7 +138,7 @@ export function SaleItems({
     function calculateTotal() {
         return items.reduce(
             (total, item) =>
-                total + item.quantity * item.rate,
+                total + item.quantity * item.mrp,
             0
         )
     }
