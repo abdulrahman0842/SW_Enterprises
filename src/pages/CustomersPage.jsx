@@ -106,131 +106,196 @@ export function CustomersPage() {
     }
 
     return (
-        <div className="space-y-6">
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">
-                    Customers Module
-                </p>
-                <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:text-3xl">
-                    Manage customers
-                </h1>
-                <p className="mt-2 text-sm text-slate-600">
-                    Create and maintain your list of regular customers for quick selection when making sales.
-                </p>
-            </section>
+      <div className="space-y-4">
+    {/* Page Header */}
+    <div className="flex items-center justify-between gap-3">
+        <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
+                Customers
+            </p>
 
-            <div className="grid gap-6 lg:grid-cols-3">
-                {/* Form Section */}
-                <div className="lg:col-span-1">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <h2 className="text-lg font-semibold text-slate-900">
-                            {editingCustomer ? 'Edit Customer' : 'Add Customer'}
-                        </h2>
-                        <div className="mt-4">
-                            <CustomerForm
-                                customer={editingCustomer || null}
-                                onSubmit={editingCustomer ? handleUpdateCustomer : handleAddCustomer}
-                                isLoading={isSubmitting}
-                            />
-                            {editingCustomer && (
-                                <button
-                                    onClick={handleCloseEdit}
-                                    className="mt-3 w-full rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                                >
-                                    Cancel
-                                </button>
-                            )}
-                        </div>
-                    </div>
+            <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
+                Manage Customers
+            </h1>
+
+            <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                Add and manage your customers.
+            </p>
+        </div>
+
+        <span className="shrink-0 rounded-full bg-slate-100 px-3 py-1.5 text-xs font-semibold text-slate-600">
+            {customers.length}
+        </span>
+    </div>
+
+    <div className="grid gap-4 lg:grid-cols-3">
+        {/* Customer Form */}
+        <div className="lg:col-span-1">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                <div className="border-b border-slate-100 pb-3">
+                    <h2 className="text-sm font-semibold text-slate-900">
+                        {editingCustomer
+                            ? 'Edit Customer'
+                            : 'Add Customer'}
+                    </h2>
+
+                    <p className="mt-0.5 text-xs text-slate-500">
+                        {editingCustomer
+                            ? 'Update customer details'
+                            : 'Enter customer details'}
+                    </p>
                 </div>
 
-                {/* List/Detail Section */}
-                <div className="lg:col-span-2">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <div className="mb-4 flex items-center justify-between gap-3">
-                            <h2 className="text-xl font-semibold text-slate-900">
-                                {showDetail && selectedCustomer ? 'Customer Details' : 'Customers'}
-                            </h2>
-                            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                                {customers.length}
-                            </span>
-                        </div>
+                <div className="pt-4">
+                    <CustomerForm
+                        customer={editingCustomer || null}
+                        onSubmit={
+                            editingCustomer
+                                ? handleUpdateCustomer
+                                : handleAddCustomer
+                        }
+                        isLoading={isSubmitting}
+                    />
 
-                        {showDetail && selectedCustomer ? (
-                            <div className="space-y-4">
-                                <div className="rounded-lg bg-slate-50 p-4">
-                                    <div className="flex items-start justify-between">
-                                        <div>
-                                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                                Name
-                                            </p>
-                                            <p className="mt-1 text-lg font-semibold text-slate-900">
-                                                {selectedCustomer.name}
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={handleCloseDetail}
-                                            className="text-slate-400 hover:text-slate-600"
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                </div>
+                    {editingCustomer && (
+                        <button
+                            type="button"
+                            onClick={handleCloseEdit}
+                            disabled={isSubmitting}
+                            className="mt-3 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+                        >
+                            Cancel
+                        </button>
+                    )}
+                </div>
+            </div>
+        </div>
 
-                                <div className="rounded-lg border border-slate-200 p-4">
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                        Contact
-                                    </p>
-                                    <p className="mt-2 text-slate-700">{selectedCustomer.contact}</p>
-                                </div>
+        {/* Customer List / Details */}
+        <div className="lg:col-span-2">
+            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                {/* List Header */}
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3.5 sm:px-5">
+                    <div>
+                        <h2 className="text-sm font-semibold text-slate-900">
+                            {showDetail && selectedCustomer
+                                ? 'Customer Details'
+                                : 'Customers'}
+                        </h2>
 
-                                {selectedCustomer.address && (
-                                    <div className="rounded-lg border border-slate-200 p-4">
-                                        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                            Address
+                        <p className="mt-0.5 text-xs text-slate-500">
+                            {showDetail && selectedCustomer
+                                ? 'View customer information'
+                                : 'Select a customer to view details'}
+                        </p>
+                    </div>
+
+                    <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                        {customers.length}
+                    </span>
+                </div>
+
+                <div className="p-4 sm:p-5">
+                    {showDetail && selectedCustomer ? (
+                        <div className="space-y-3">
+                            {/* Customer Name */}
+                            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                                            Customer
                                         </p>
-                                        <p className="mt-2 whitespace-pre-wrap text-slate-700">
-                                            {selectedCustomer.address}
+
+                                        <p className="mt-1 truncate text-base font-semibold text-slate-900">
+                                            {selectedCustomer.name}
                                         </p>
                                     </div>
-                                )}
 
-                                <div className="flex gap-2 pt-2">
                                     <button
-                                        onClick={() => handleEditClick(selectedCustomer)}
-                                        className="flex-1 rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-sky-700"
+                                        type="button"
+                                        onClick={handleCloseDetail}
+                                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-white hover:text-slate-600"
+                                        aria-label="Close customer details"
                                     >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDeleteCustomer(selectedCustomer.id)}
-                                        className="flex-1 rounded-lg bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100"
-                                    >
-                                        Delete
+                                        ×
                                     </button>
                                 </div>
                             </div>
-                        ) : (
-                            <CustomerList
-                                customers={customers}
-                                loading={loading}
-                                onEdit={handleEditClick}
-                                onDelete={handleDeleteCustomer}
-                                onSelectDetail={handleSelectDetail}
-                            />
-                        )}
-                    </div>
+
+                            {/* Contact */}
+                            <div className="border-t border-slate-100 pt-3">
+                                <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                                    Contact
+                                </p>
+
+                                <p className="mt-1 text-sm font-medium text-slate-700">
+                                    {selectedCustomer.contact || '—'}
+                                </p>
+                            </div>
+
+                            {/* Address */}
+                            {selectedCustomer.address && (
+                                <div className="border-t border-slate-100 pt-3">
+                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                                        Address
+                                    </p>
+
+                                    <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">
+                                        {selectedCustomer.address}
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Actions */}
+                            <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleEditClick(
+                                            selectedCustomer
+                                        )
+                                    }
+                                    className="h-11 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 active:bg-sky-800"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        handleDeleteCustomer(
+                                            selectedCustomer.id
+                                        )
+                                    }
+                                    className="h-11 rounded-xl border border-red-200 bg-red-50 px-4 text-sm font-semibold text-red-600 transition hover:bg-red-100 active:bg-red-100"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <CustomerList
+                            customers={customers}
+                            loading={loading}
+                            onEdit={handleEditClick}
+                            onDelete={handleDeleteCustomer}
+                            onSelectDetail={handleSelectDetail}
+                        />
+                    )}
                 </div>
             </div>
-
-            {toasts.map((toast) => (
-                <Toast
-                    key={toast.id}
-                    message={toast.message}
-                    type={toast.type}
-                    onClose={() => removeToast(toast.id)}
-                />
-            ))}
         </div>
+    </div>
+
+    {/* Toasts */}
+    {toasts.map((toast) => (
+        <Toast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            onClose={() => removeToast(toast.id)}
+        />
+    ))}
+</div>
     )
 }

@@ -18,41 +18,56 @@ export function CustomerList({ customers, loading, onEdit, onDelete, onSelectDet
     return (
         <>
             {/* Mobile cards view */}
-            <div className="space-y-3 md:hidden">
+            <div className="space-y-2.5 md:hidden">
                 {customers.map((customer) => (
                     <article
                         key={customer.id}
-                        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+                        className="rounded-xl border border-slate-200 bg-white p-2.5"
                     >
-                        <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                                <h3
-                                    onClick={() => onSelectDetail(customer.id)}
-                                    className="text-lg font-semibold text-sky-600 cursor-pointer hover:underline"
-                                >
+                        <div className="flex items-center gap-2.5">
+                            {/* Customer Info */}
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    onSelectDetail(customer.id)
+                                }
+                                className="min-w-0 flex-1 rounded-lg bg-slate-50 px-3 py-2.5 text-left transition active:bg-slate-100"
+                            >
+                                <h3 className="truncate text-sm font-semibold text-slate-900">
                                     {customer.name}
                                 </h3>
-                                <p className="mt-1 text-sm text-slate-600">{customer.contact}</p>
+
+                                <p className="mt-1 text-xs font-medium text-slate-600">
+                                    {customer.contact || 'No contact'}
+                                </p>
+
                                 {customer.address && (
-                                    <p className="mt-1 text-xs text-slate-500 line-clamp-2">
+                                    <p className="mt-1 truncate text-xs text-slate-400">
                                         {customer.address}
                                     </p>
                                 )}
-                            </div>
-                            <div className="flex gap-2">
+                            </button>
+
+                            {/* Actions */}
+                            <div className="flex shrink-0 flex-col gap-1.5">
                                 <button
+                                    type="button"
                                     onClick={() => onEdit(customer)}
-                                    className="rounded-lg bg-slate-100 p-2 text-slate-600 hover:bg-slate-200"
-                                    title="Edit"
+                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:bg-slate-50 hover:text-slate-700 active:bg-slate-100"
+                                    aria-label={`Edit ${customer.name}`}
                                 >
-                                    <span className="text-sm font-semibold">✎</span>
+                                    <span className="text-sm">✎</span>
                                 </button>
+
                                 <button
-                                    onClick={() => onDelete(customer.id)}
-                                    className="rounded-lg bg-red-50 p-2 text-red-600 hover:bg-red-100"
-                                    title="Delete"
+                                    type="button"
+                                    onClick={() =>
+                                        onDelete(customer.id)
+                                    }
+                                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-red-500 transition hover:bg-red-100 active:bg-red-100"
+                                    aria-label={`Delete ${customer.name}`}
                                 >
-                                    <span className="text-sm font-semibold">✕</span>
+                                    <span className="text-sm">×</span>
                                 </button>
                             </div>
                         </div>
@@ -60,60 +75,88 @@ export function CustomerList({ customers, loading, onEdit, onDelete, onSelectDet
                 ))}
             </div>
 
-            {/* Desktop table view */}
-            <div className="hidden overflow-x-auto md:block">
-                <table className="w-full">
-                    <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50">
-                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                Name
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                Contact
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                Address
-                            </th>
-                            <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                        {customers.map((customer) => (
-                            <tr key={customer.id} className="hover:bg-slate-50">
-                                <td className="px-4 py-3">
-                                    <button
-                                        onClick={() => onSelectDetail(customer.id)}
-                                        className="text-sky-600 hover:underline font-semibold"
-                                    >
-                                        {customer.name}
-                                    </button>
-                                </td>
-                                <td className="px-4 py-3 text-slate-700">{customer.contact}</td>
-                                <td className="px-4 py-3 text-slate-600 max-w-xs truncate">
-                                    {customer.address || '—'}
-                                </td>
-                                <td className="px-4 py-3">
-                                    <div className="flex justify-end gap-2">
-                                        <button
-                                            onClick={() => onEdit(customer)}
-                                            className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-200"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => onDelete(customer.id)}
-                                            className="rounded-lg bg-red-50 px-3 py-1.5 text-sm font-semibold text-red-600 hover:bg-red-100"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
-                                </td>
+            {/* Desktop table */}
+            <div className="hidden overflow-hidden rounded-xl border border-slate-200 md:block">
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-slate-200 bg-slate-50">
+                                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                    Name
+                                </th>
+
+                                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                    Contact
+                                </th>
+
+                                <th className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                    Address
+                                </th>
+
+                                <th className="px-4 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                                    Actions
+                                </th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody className="divide-y divide-slate-100">
+                            {customers.map((customer) => (
+                                <tr
+                                    key={customer.id}
+                                    className="transition hover:bg-slate-50"
+                                >
+                                    <td className="px-4 py-3">
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                onSelectDetail(
+                                                    customer.id
+                                                )
+                                            }
+                                            className="text-sm font-semibold text-slate-900 hover:text-sky-600"
+                                        >
+                                            {customer.name}
+                                        </button>
+                                    </td>
+
+                                    <td className="px-4 py-3 text-sm text-slate-600">
+                                        {customer.contact || '—'}
+                                    </td>
+
+                                    <td className="max-w-xs truncate px-4 py-3 text-sm text-slate-500">
+                                        {customer.address || '—'}
+                                    </td>
+
+                                    <td className="px-4 py-3">
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    onEdit(customer)
+                                                }
+                                                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    onDelete(
+                                                        customer.id
+                                                    )
+                                                }
+                                                className="rounded-lg border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </>
     )
