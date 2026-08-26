@@ -69,121 +69,147 @@ export function SalesHistoryList({
             <div className="space-y-3 md:hidden">
                 {sales.map((sale) => {
                     const selected = selectedSale?.id === sale.id
+                    const balance = Number(sale.balance_amount || 0)
 
                     return (
                         <article
                             key={sale.id}
-                            className={`overflow-hidden rounded-xl border shadow-sm transition ${
-                                selected
-                                    ? 'border-sky-200 bg-sky-50/50 ring-1 ring-sky-100'
+                            className={`overflow-hidden rounded-xl border transition ${selected
+                                    ? 'border-sky-300 bg-sky-50/30 ring-1 ring-sky-100'
                                     : 'border-slate-200 bg-white'
-                            }`}
+                                }`}
                         >
-                            {/* Card header */}
-                            <div className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3">
-                                <div className="min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-xs font-semibold text-sky-600">
-                                            #{sale.id}
-                                        </span>
+                            {/* Header */}
+                            <div
+                                className={`border-b px-4 py-3 ${selected
+                                        ? 'border-sky-100 bg-sky-50/60'
+                                        : 'border-slate-200 bg-slate-50/70'
+                                    }`}
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-xs font-bold text-sky-600">
+                                                #{sale.id}
+                                            </span>
 
-                                        <span className="text-xs text-slate-400">
-                                            •
-                                        </span>
+                                            <span className="text-xs text-slate-300">
+                                                |
+                                            </span>
 
-                                        <span className="text-xs text-slate-500">
-                                            {sale.date}
-                                        </span>
+                                            <span className="text-xs text-slate-500">
+                                                {sale.date}
+                                            </span>
+                                        </div>
+
+                                        <h3 className="mt-1 truncate text-sm font-semibold text-slate-900">
+                                            {sale.customer_name ||
+                                                'Walk-in Customer'}
+                                        </h3>
                                     </div>
 
-                                    <h3 className="mt-1 truncate text-base font-semibold text-slate-900">
-                                        {sale.customer_name || 'Walk-in Customer'}
-                                    </h3>
+                                    <span
+                                        className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-bold ${getPaymentBadgeClass(
+                                            sale.payment_status
+                                        )
+                                            }`}
+                                    >
+                                        {sale.payment_status}
+                                    </span>
                                 </div>
-
-                                <span
-                                    className={`shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold ${getPaymentBadgeClass(
-                                        sale.payment_status
-                                    )}`}
-                                >
-                                    {sale.payment_status}
-                                </span>
                             </div>
 
-                            {/* Summary */}
-                            <div className="grid grid-cols-2 gap-px bg-slate-100">
-                                <div className="bg-white px-4 py-3">
-                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                            {/* Financial summary */}
+                            <div className="grid grid-cols-2 border-b border-slate-200">
+                                <div className="border-r border-b border-slate-200 px-4 py-3">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                                         Total
                                     </p>
 
-                                    <p className="mt-1 text-sm font-bold text-slate-900">
-                                        {formatCurrency(sale.total_amount)}
+                                    <p className="mt-1 text-base font-bold text-slate-900">
+                                        {formatCurrency(
+                                            sale.total_amount
+                                        )}
                                     </p>
                                 </div>
 
-                                <div className="bg-white px-4 py-3">
-                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                                <div className="border-b border-slate-200 px-4 py-3">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                                         Products
                                     </p>
 
-                                    <p className="mt-1 text-sm font-bold text-slate-900">
+                                    <p className="mt-1 text-base font-bold text-slate-900">
                                         {sale.product_count}
                                     </p>
                                 </div>
 
-                                <div className="bg-white px-4 py-3">
-                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                                <div className="border-r border-slate-200 bg-emerald-50/40 px-4 py-3">
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                                         Paid
                                     </p>
 
-                                    <p className="mt-1 text-sm font-semibold text-emerald-700">
-                                        {formatCurrency(sale.amount_paid)}
+                                    <p className="mt-1 text-sm font-bold text-emerald-700">
+                                        {formatCurrency(
+                                            sale.amount_paid
+                                        )}
                                     </p>
                                 </div>
 
-                                <div className="bg-white px-4 py-3">
-                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
+                                <div
+                                    className={`px-4 py-3 ${balance > 0
+                                            ? 'bg-amber-50/50'
+                                            : 'bg-slate-50/50'
+                                        }`}
+                                >
+                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
                                         Balance
                                     </p>
 
                                     <p
-                                        className={`mt-1 text-sm font-semibold ${
-                                            Number(sale.balance_amount || 0) > 0
+                                        className={`mt-1 text-sm font-bold ${balance > 0
                                                 ? 'text-amber-700'
                                                 : 'text-slate-700'
-                                        }`}
+                                            }`}
                                     >
-                                        {formatCurrency(sale.balance_amount)}
+                                        {formatCurrency(
+                                            sale.balance_amount
+                                        )}
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Customer information */}
+                            {/* Customer contact */}
                             {sale.customer_contact && (
-                                <div className="border-t border-slate-100 px-4 py-3">
-                                    <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                                        Contact
-                                    </p>
+                                <div className="border-b border-slate-200 px-4 py-3">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                                Contact
+                                            </p>
 
-                                    <p className="mt-1 truncate text-sm text-slate-700">
-                                        {sale.customer_contact}
-                                    </p>
+                                            <p className="mt-1 truncate text-sm font-medium text-slate-700">
+                                                {sale.customer_contact}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
                             {/* Action */}
-                            <div className="border-t border-slate-100 p-3">
+                            <div className="p-3">
                                 <button
                                     type="button"
-                                    onClick={() => onSelectSale(sale.id)}
-                                    className={`w-full rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
-                                        selected
-                                            ? 'bg-sky-700 text-white'
-                                            : 'bg-sky-600 text-white hover:bg-sky-700'
-                                    }`}
+                                    onClick={() =>
+                                        onSelectSale(sale.id)
+                                    }
+                                    className={`w-full rounded-lg px-3 py-2.5 text-xs font-semibold transition ${selected
+                                            ? 'bg-slate-800 text-white'
+                                            : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100'
+                                        }`}
                                 >
-                                    {selected ? 'Viewing items' : 'View items'}
+                                    {selected
+                                        ? 'Viewing items'
+                                        : 'View items'}
                                 </button>
                             </div>
                         </article>
@@ -245,11 +271,10 @@ export function SalesHistoryList({
                                 return (
                                     <tr
                                         key={sale.id}
-                                        className={`transition ${
-                                            selected
+                                        className={`transition ${selected
                                                 ? 'bg-sky-50'
                                                 : 'hover:bg-slate-50'
-                                        }`}
+                                            }`}
                                     >
                                         <td className="px-4 py-3">
                                             <span className="font-semibold text-sky-700">
@@ -301,13 +326,12 @@ export function SalesHistoryList({
                                         </td>
 
                                         <td
-                                            className={`whitespace-nowrap px-4 py-3 text-right font-medium ${
-                                                Number(
-                                                    sale.balance_amount || 0
-                                                ) > 0
+                                            className={`whitespace-nowrap px-4 py-3 text-right font-medium ${Number(
+                                                sale.balance_amount || 0
+                                            ) > 0
                                                     ? 'text-amber-700'
                                                     : 'text-slate-600'
-                                            }`}
+                                                }`}
                                         >
                                             {formatCurrency(
                                                 sale.balance_amount
@@ -320,11 +344,10 @@ export function SalesHistoryList({
                                                 onClick={() =>
                                                     onSelectSale(sale.id)
                                                 }
-                                                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                                                    selected
+                                                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${selected
                                                         ? 'bg-sky-700 text-white'
                                                         : 'bg-sky-600 text-white hover:bg-sky-700'
-                                                }`}
+                                                    }`}
                                             >
                                                 View
                                             </button>
@@ -452,97 +475,72 @@ export function SalesHistoryList({
                         </div>
 
                         <div className="space-y-3">
-                            {(selectedSale.items || []).map(
-                                (item, index) => {
-                                    const product =
-                                        productsById.get(
-                                            Number(item.product_id)
-                                        ) || {}
+                            {(selectedSale.items || []).map((item, index) => {
+                                const product =
+                                    productsById.get(Number(item.product_id)) || {}
 
-                                    const productName =
-                                        product.name ||
-                                        'Unknown product'
+                                const productName =
+                                    product.name || 'Unknown product'
 
-                                    const quantity =
-                                        Number(item.quantity || 0)
+                                const quantity = Number(item.quantity || 0)
+                                const purchaseRate = Number(item.rate || 0)
+                                const sellingPrice = Number(item.mrp || 0)
 
-                                    const quantityPerBox =
-                                        Number(
-                                            product.quantity_per_box || 0
-                                        )
+                                const total = sellingPrice * quantity
+                                const profit =
+                                    (sellingPrice - purchaseRate) * quantity
 
-                                    const bottles =
-                                        quantity * quantityPerBox
+                                return (
+                                    <article
+                                        key={`${selectedSale.id}-${item.product_id || index}`}
+                                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
+                                    >
+                                        {/* Product header */}
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <h5 className="truncate text-sm font-semibold text-slate-900">
+                                                    {productName}
+                                                </h5>
 
-                                    const total =
-                                        Number(item.rate || 0) *
-                                        quantity
-
-                                    return (
-                                        <article
-                                            key={`${selectedSale.id}-${item.product_id || index}`}
-                                            className="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
-                                        >
-                                            <div className="flex items-start justify-between gap-3">
-                                                <div className="min-w-0">
-                                                    <h5 className="truncate text-sm font-semibold text-slate-900">
-                                                        {productName}
-                                                    </h5>
-
-                                                    <p className="mt-0.5 text-xs text-slate-400">
-                                                        Product ID:{' '}
-                                                        {item.product_id}
-                                                    </p>
-                                                </div>
-
-                                                <p className="shrink-0 text-sm font-bold text-sky-700">
-                                                    {formatCurrency(total)}
+                                                <p className="mt-0.5 text-xs text-slate-400">
+                                                    Product ID: {item.product_id}
                                                 </p>
                                             </div>
 
-                                            <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 sm:grid-cols-3 lg:grid-cols-6">
-                                                <Detail
-                                                    label="Quantity"
-                                                    value={`${quantity} boxes`}
-                                                />
+                                            <p className="shrink-0 text-sm font-bold text-sky-700">
+                                                {formatCurrency(total)}
+                                            </p>
+                                        </div>
 
-                                                <Detail
-                                                    label="Bottles"
-                                                    value={bottles}
-                                                />
+                                        {/* Item details */}
+                                        <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 sm:grid-cols-4">
+                                            <Detail
+                                                label="Quantity"
+                                                value={`${quantity} boxes`}
+                                            />
 
-                                                <Detail
-                                                    label="Qty / Box"
-                                                    value={
-                                                        quantityPerBox
-                                                    }
-                                                />
+                                            <Detail
+                                                label="Purchase Rate"
+                                                value={formatCurrency(
+                                                    purchaseRate
+                                                )}
+                                            />
 
-                                                <Detail
-                                                    label="Rate"
-                                                    value={formatCurrency(
-                                                        item.rate
-                                                    )}
-                                                />
+                                            <Detail
+                                                label="Selling Price"
+                                                value={formatCurrency(
+                                                    sellingPrice
+                                                )}
+                                            />
 
-                                                <Detail
-                                                    label="MRP"
-                                                    value={formatCurrency(
-                                                        item.mrp
-                                                    )}
-                                                />
-
-                                                <Detail
-                                                    label="Total"
-                                                    value={formatCurrency(
-                                                        total
-                                                    )}
-                                                />
-                                            </div>
-                                        </article>
-                                    )
-                                }
-                            )}
+                                            <Detail
+                                                label="Profit"
+                                                value={formatCurrency(profit)}
+                                            />
+                                        </div>
+                                    </article>
+                                )
+                            })}
                         </div>
                     </div>
                 </section>

@@ -137,68 +137,67 @@ export function SalesPage() {
             {/* =========================
                 PAGE HEADER
             ========================== */}
-           <div className="flex items-center justify-between gap-3">
-    <div className="min-w-0">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
-            Sales
-        </p>
+            <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
+                        Sales
+                    </p>
 
-        <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
-            Create Sale
-        </h1>
+                    <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
+                        Create Sale
+                    </h1>
 
-        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-            Create sales and manage customer orders
-        </p>
-    </div>
+                    <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                        Create sales and manage customer orders
+                    </p>
+                </div>
 
-    <button
-        type="button"
-        onClick={loadSalesHistory}
-        disabled={loadingSales}
-        title="Refresh sales"
-        aria-label="Refresh sales"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-sky-600 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-        <svg
-            className={`h-4 w-4 ${
-                loadingSales ? 'animate-spin' : ''
-            }`}
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-        >
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0118 6.5L20 9M18.5 15A7 7 0 016 17.5L4 15"
-            />
-        </svg>
-    </button>
-</div>
+                <button
+                    type="button"
+                    onClick={loadSalesHistory}
+                    disabled={loadingSales}
+                    title="Refresh sales"
+                    aria-label="Refresh sales"
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-slate-50 hover:text-sky-600 active:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                    <svg
+                        className={`h-4 w-4 ${loadingSales ? 'animate-spin' : ''
+                            }`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M4 4v5h5M20 20v-5h-5M5.5 9A7 7 0 0118 6.5L20 9M18.5 15A7 7 0 016 17.5L4 15"
+                        />
+                    </svg>
+                </button>
+            </div>
 
             {/* =========================
                 SALE FORM
             ========================== */}
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-               <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
-    <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
-            +
-        </div>
+                <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
+                    <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                            +
+                        </div>
 
-        <div className="min-w-0">
-            <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-                New Sale
-            </h2>
+                        <div className="min-w-0">
+                            <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
+                                New Sale
+                            </h2>
 
-            <p className="mt-0.5 text-xs text-slate-500">
-                Create a new sale
-            </p>
-        </div>
-    </div>
-</div>
+                            <p className="mt-0.5 text-xs text-slate-500">
+                                Create a new sale
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
                 <div className="p-4 sm:p-5">
                     <SalesForm
@@ -246,15 +245,10 @@ export function SalesPage() {
                 SALES HISTORY
             ========================== */}
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
-                {/* History Header */}
-                <div className="flex flex-col gap-3 border-b border-slate-100 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-                    <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
-                            History
-                        </p>
-
-                        <h2 className="mt-1 text-base font-semibold text-slate-900 sm:text-lg">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
+                    <div className="min-w-0">
+                        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
                             Recent Sales
                         </h2>
 
@@ -263,32 +257,22 @@ export function SalesPage() {
                         </p>
                     </div>
 
-                    <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                    <span className="shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
                         {sales.length}{' '}
-                        {sales.length === 1
-                            ? 'sale'
-                            : 'sales'}
+                        {sales.length === 1 ? 'sale' : 'sales'}
                     </span>
                 </div>
 
-                {/* History List */}
-                <div className="p-3 sm:p-5">
+                {/* Sales List */}
+                <div className="p-2.5 sm:p-4">
                     <SalesHistoryList
                         sales={sales}
                         loading={loadingSales}
                         error={salesError}
-                        onSelectSale={
-                            setSelectedSaleId
-                        }
-                        selectedSale={
-                            selectedSale
-                        }
-                        productsById={
-                            productsById
-                        }
-                        onSendInvoice={
-                            handleSendInvoice
-                        }
+                        onSelectSale={setSelectedSaleId}
+                        selectedSale={selectedSale}
+                        productsById={productsById}
+                        onSendInvoice={handleSendInvoice}
                     />
                 </div>
             </section>

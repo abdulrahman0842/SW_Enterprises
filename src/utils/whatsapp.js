@@ -29,46 +29,97 @@ export function normalizeWhatsappNumber(rawPhone) {
 }
 
 export function buildInvoiceMessage(sale, productsById) {
+    const businessName = 'SW Enterprises'
     const customerName = sale?.customer_name || 'Customer'
     const customerContact = sale?.customer_contact || 'N/A'
-    const items = Array.isArray(sale?.items) ? sale.items : []
+    const items = Array.isArray(sale?.items)
+        ? sale.items
+        : []
 
     const lines = [
-        '*Invoice*',
+        `*${businessName}*`,
+        `*SALES INVOICE*`,
         '',
-        `Customer: ${customerName}`,
-        `Contact: ${customerContact}`,
+        `Invoice No: #${sale?.id || 'N/A'}`,
+        `Date: ${sale?.date || 'N/A'}`,
         '',
-        'Items:',
+        `*Customer:* ${customerName}`,
+        `*Contact:* ${customerContact}`,
         '',
+        '*Items*',
+        '────────────────────',
     ]
 
     if (items.length === 0) {
         lines.push('No items')
     } else {
-        items.forEach((item) => {
-            const product = productsById.get(Number(item.product_id)) || {}
-            const productName = product.name || `Product ${item.product_id}`
-            const qty = Number(item.quantity || 0)
-            const rate = Number(item.rate || 0)
-            const total = qty * rate
+        items.forEach((item, index) => {
+            const product =
+                productsById.get(
+                    Number(item.product_id)
+                ) || {}
 
-            lines.push(`${productName}`)
-            lines.push(`${qty} boxes × ₹${rate.toFixed(2)} = ₹${total.toFixed(2)}`)
-            lines.push('')
+            const productName =
+                product.name ||
+                `Product ${item.product_id}`
+
+            const quantity = Number(
+                item.quantity || 0
+            )
+
+            // MRP is the actual selling price
+            const sellingPrice = Number(
+                item.mrp || 0
+            )
+
+            const itemTotal =
+                quantity * sellingPrice
+
+            lines.push(
+                `*${index + 1}. ${productName}*`
+            )
+
+            lines.push(
+                `${quantity} box × ₹${sellingPrice.toFixed(2)} = *₹${itemTotal.toFixed(2)}*`
+            )
+
+            if (index < items.length - 1) {
+                lines.push('')
+            }
         })
     }
 
-    lines.push(`Total: ₹${Number(sale?.total_amount || 0).toFixed(2)}`)
-    lines.push(`Payment Status: ${sale?.payment_status || 'Pending'}`)
-    lines.push(`Amount Paid: ₹${Number(sale?.amount_paid || 0).toFixed(2)}`)
-    lines.push(`Balance: ₹${Number(sale?.balance_amount || 0).toFixed(2)}`)
+    const total = Number(
+        sale?.total_amount || 0
+    )
+
+    const amountPaid = Number(
+        sale?.amount_paid || 0
+    )
+
+    const balance = Number(
+        sale?.balance_amount || 0
+    )
+
+    lines.push('')
+    lines.push('────────────────────')
+    lines.push(`*Total: ₹${total.toFixed(2)}*`)
+    lines.push('')
+    lines.push(
+        `Payment: *${sale?.payment_status || 'Pending'}*`
+    )
+    lines.push(
+        `Amount Paid: ₹${amountPaid.toFixed(2)}`
+    )
+    lines.push(
+        `Balance Due: *₹${balance.toFixed(2)}*`
+    )
     lines.push('')
     lines.push('Thank you for your business!')
+    lines.push(`*${businessName}*`)
 
     return lines.join('\n')
 }
-
 export function openWhatsappInvoice(sale, productsById) {
     if (!sale) {
         return
