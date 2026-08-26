@@ -19,30 +19,22 @@ function getDateString(date) {
 
 function getStartOfWeek(date) {
     const result = new Date(date)
-    const day = result.getDay()
 
-    const diff = day === 0 ? -6 : 1 - day
+    result.setDate(
+        result.getDate() - 6
+    )
 
-    result.setDate(result.getDate() + diff)
-    result.setHours(0, 0, 0, 0)
-
-    return result
+    return getDateString(result)
 }
 
 function getStartOfMonth(date) {
-    const result = new Date(
-        date.getFullYear(),
-        date.getMonth(),
-        1
+    return getDateString(
+        new Date(
+            date.getFullYear(),
+            date.getMonth(),
+            1
+        )
     )
-
-    result.setHours(0, 0, 0, 0)
-
-    return result
-}
-
-function getSaleDate(sale) {
-    return new Date(`${sale.date}T00:00:00`)
 }
 
 function calculateProfit(sales) {
@@ -51,29 +43,32 @@ function calculateProfit(sales) {
             return totalProfit
         }
 
-        return (
-            totalProfit +
-            sale.items.reduce((profit, item) => {
-                const quantity =
-                    Number(item.quantity || 0)
+        const saleProfit = sale.items.reduce(
+            (profit, item) => {
+                const quantity = Number(
+                    item.quantity || 0
+                )
 
-                const sellingRate =
-                    Number(item.rate || 0)
+                // Purchase price
+                const purchaseRate = Number(
+                    item.rate || 0
+                )
 
-                const costRate =
-                    Number(
-                        item.cost_rate ??
-                        item.purchase_rate ??
-                        0
-                    )
+                // Selling price
+                const sellingPrice = Number(
+                    item.mrp || 0
+                )
 
                 return (
                     profit +
-                    (sellingRate - costRate) *
+                    (sellingPrice - purchaseRate) *
                     quantity
                 )
-            }, 0)
+            },
+            0
         )
+
+        return totalProfit + saleProfit
     }, 0)
 }
 
@@ -112,110 +107,127 @@ export function DashboardPage() {
             setLoading(true)
             setError('')
 
-            const [
-                salesData,
-                productsData,
-            ] = await Promise.all([
-                fetchSalesHistory(),
-                fetchProducts(),
-            ])
+            const [salesData, productsData] =
+                await Promise.all([
+                    fetchSalesHistory(),
+                    fetchProducts(),
+                ])
 
             const now = new Date()
+
             const todayString = getDateString(now)
+            const startOfWeek = getStartOfWeek(now)
+            const startOfMonth = getStartOfMonth(now)
 
-            const startOfWeek =
-                getStartOfWeek(now)
+            console.log('Dashboard dates:', {
+                today: todayString,
+                weekStart: startOfWeek,
+                monthStart: startOfMonth,
+            })
 
-            const startOfMonth =
-                getStartOfMonth(now)
+            console.log('Sales:', salesData)
 
             /*
              * SALES
+             *
+             * PostgreSQL DATE values are YYYY-MM-DD.
+             * Compare them as strings instead of converting
+             * them into JavaScript Date objects.
              */
 
-            const salesTodayData =
-                salesData.filter(
-                    (sale) =>
-                        sale.date === todayString
-                )
+            const salesTodayData = salesData.filter(
+                (sale) =>
+                    sale.date?.slice(0, 10) ===
+                    todayString
+            )
 
-            const salesWeekData =
-                salesData.filter((sale) => {
-                    const date = getSaleDate(sale)
+            const salesWeekData = salesData.filter(
+                (sale) => {
+                    const saleDate =
+                        sale.date?.slice(0, 10)
 
-                    return (
-                        date >= startOfWeek &&
-                        date <= now
-                    )
-                })
-
-            const salesMonthData =
-                salesData.filter((sale) => {
-                    const date = getSaleDate(sale)
+                    if (!saleDate) return false
 
                     return (
-                        date >= startOfMonth &&
-                        date <= now
+                        saleDate >= startOfWeek &&
+                        saleDate <= todayString
                     )
-                })
+                }
+            )
+
+            const salesMonthData = salesData.filter(
+                (sale) => {
+                    const saleDate =
+                        sale.date?.slice(0, 10)
+
+                    if (!saleDate) return false
+
+                    return (
+                        saleDate >= startOfMonth &&
+                        saleDate <= todayString
+                    )
+                }
+            )
+
+            console.log('Filtered sales:', {
+                today: salesTodayData,
+                week: salesWeekData,
+                month: salesMonthData,
+            })
+
+            /*
+             * SALES TOTALS
+             */
 
             const salesToday =
-                getSalesTotal(
-                    salesTodayData
-                )
+                getSalesTotal(salesTodayData)
 
             const salesWeek =
-                getSalesTotal(
-                    salesWeekData
-                )
+                getSalesTotal(salesWeekData)
 
             const salesMonth =
-                getSalesTotal(
-                    salesMonthData
-                )
+                getSalesTotal(salesMonthData)
 
             /*
              * PROFIT
+             *
+             * item.rate = purchase price
+             * item.mrp  = selling price
              */
 
             const profitToday =
-                calculateProfit(
-                    salesTodayData
-                )
+                calculateProfit(salesTodayData)
 
             const profitWeek =
-                calculateProfit(
-                    salesWeekData
-                )
+                calculateProfit(salesWeekData)
 
             const profitMonth =
-                calculateProfit(
-                    salesMonthData
-                )
+                calculateProfit(salesMonthData)
 
             /*
              * OUTSTANDING
              */
 
-            const outstanding =
-                salesData
-                    .filter(
-                        (sale) =>
-                            sale.payment_status !==
-                            'Paid'
-                    )
-                    .reduce(
-                        (sum, sale) =>
-                            sum +
-                            Number(
-                                sale.balance_amount ||
-                                0
-                            ),
-                        0
-                    )
+            const outstanding = salesData
+                .filter(
+                    (sale) =>
+                        sale.payment_status !== 'Paid'
+                )
+                .reduce(
+                    (sum, sale) =>
+                        sum +
+                        Number(
+                            sale.balance_amount || 0
+                        ),
+                    0
+                )
 
             /*
              * INVENTORY
+             *
+             * quantity_per_box has been removed from
+             * the product model, so don't calculate
+             * bottle quantities here anymore.
              */
 
             const normalizedInventory =
@@ -226,22 +238,9 @@ export function DashboardPage() {
                         stockBoxes: Number(
                             product.stock || 0
                         ),
-
-                        stockBottles:
-                            calculateBottles(
-                                Number(
-                                    product.stock || 0
-                                ),
-                                Number(
-                                    product.quantity_per_box ||
-                                    0
-                                )
-                            ),
                     }))
                     .sort((a, b) =>
-                        a.name.localeCompare(
-                            b.name
-                        )
+                        a.name.localeCompare(b.name)
                     )
 
             const lowStockItems =
@@ -250,20 +249,21 @@ export function DashboardPage() {
                         product.stockBoxes <= 5
                 )
 
-            setInventory(
-                normalizedInventory
-            )
+            /*
+             * STATE
+             */
 
-            setLowStock(
-                lowStockItems
-            )
+            setInventory(normalizedInventory)
+
+            setLowStock(lowStockItems)
 
             setSales(
                 [...salesData]
                     .sort(
                         (a, b) =>
-                            new Date(b.date) -
-                            new Date(a.date)
+                            String(b.date).localeCompare(
+                                String(a.date)
+                            )
                     )
                     .slice(0, 5)
             )
@@ -271,10 +271,13 @@ export function DashboardPage() {
             setSummary({
                 salesToday,
                 profitToday,
+
                 salesWeek,
                 profitWeek,
+
                 salesMonth,
                 profitMonth,
+
                 outstanding,
             })
         } catch (err) {
@@ -355,11 +358,11 @@ export function DashboardPage() {
                     loading={loading}
                     warning
                 />
+
             </section>
 
             {/* Profit Period Summary */}
-            <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-
+            <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <ProfitCard
                     label="Profit Today"
                     value={summary.profitToday}
@@ -377,7 +380,6 @@ export function DashboardPage() {
                     value={summary.profitMonth}
                     loading={loading}
                 />
-
             </section>
 
             {/* Inventory + Low Stock */}
@@ -416,11 +418,10 @@ export function DashboardPage() {
                                         return (
                                             <div
                                                 key={product.id}
-                                                className={`rounded-xl border p-3 ${
-                                                    low
-                                                        ? 'border-amber-200 bg-amber-50'
-                                                        : 'border-slate-200 bg-slate-50'
-                                                }`}
+                                                className={`rounded-xl border p-3 ${low
+                                                    ? 'border-amber-200 bg-amber-50'
+                                                    : 'border-slate-200 bg-slate-50'
+                                                    }`}
                                             >
                                                 <div className="flex items-center justify-between gap-3">
                                                     <div className="min-w-0">
@@ -435,11 +436,10 @@ export function DashboardPage() {
                                                     </div>
 
                                                     <span
-                                                        className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold ${
-                                                            low
-                                                                ? 'bg-amber-100 text-amber-700'
-                                                                : 'bg-emerald-100 text-emerald-700'
-                                                        }`}
+                                                        className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold ${low
+                                                            ? 'bg-amber-100 text-amber-700'
+                                                            : 'bg-emerald-100 text-emerald-700'
+                                                            }`}
                                                     >
                                                         {low
                                                             ? 'Low'
@@ -600,15 +600,14 @@ export function DashboardPage() {
                                         </span>
 
                                         <span
-                                            className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
-                                                sale.payment_status ===
+                                            className={`rounded-full px-2 py-1 text-[10px] font-semibold ${sale.payment_status ===
                                                 'Paid'
-                                                    ? 'bg-emerald-100 text-emerald-700'
-                                                    : sale.payment_status ===
-                                                        'Partial'
-                                                      ? 'bg-amber-100 text-amber-700'
-                                                      : 'bg-slate-200 text-slate-700'
-                                            }`}
+                                                ? 'bg-emerald-100 text-emerald-700'
+                                                : sale.payment_status ===
+                                                    'Partial'
+                                                    ? 'bg-amber-100 text-amber-700'
+                                                    : 'bg-slate-200 text-slate-700'
+                                                }`}
                                         >
                                             {sale.payment_status}
                                         </span>
@@ -636,69 +635,99 @@ function SummaryCard({
 }) {
     return (
         <div
-            className={`rounded-xl border p-3 shadow-sm sm:p-4 ${
-                positive
-                    ? 'border-emerald-200 bg-emerald-50'
+            className={`
+                relative overflow-hidden rounded-2xl
+                border bg-white p-3.5
+                sm:p-4
+                ${positive
+                    ? 'border-emerald-200'
                     : warning
-                      ? 'border-amber-200 bg-amber-50'
-                      : 'border-slate-200 bg-white'
-            }`}
+                        ? 'border-amber-200'
+                        : 'border-slate-200'
+                }
+            `}
         >
-            <p
-                className={`text-[11px] font-medium ${
-                    positive
-                        ? 'text-emerald-700'
+            {/* Accent */}
+            <div
+                className={`
+                    absolute left-0 top-0 h-full w-1
+                    ${positive
+                        ? 'bg-emerald-500'
                         : warning
-                          ? 'text-amber-700'
-                          : 'text-slate-500'
-                }`}
-            >
-                {label}
-            </p>
+                            ? 'bg-amber-500'
+                            : 'bg-slate-300'
+                    }
+                `}
+            />
 
-            <p
-                className={`mt-1.5 break-words text-base font-bold sm:text-xl ${
-                    positive
-                        ? 'text-emerald-700'
-                        : warning
-                          ? 'text-amber-700'
-                          : 'text-slate-900'
-                }`}
-            >
-                {loading
-                    ? '...'
-                    : currency.format(value)}
-            </p>
+            <div className="pl-1">
+                <p
+                    className={`
+                        text-[11px] font-medium
+                        ${positive
+                            ? 'text-emerald-600'
+                            : warning
+                                ? 'text-amber-600'
+                                : 'text-slate-500'
+                        }
+                    `}
+                >
+                    {label}
+                </p>
+
+                {loading ? (
+                    <div className="mt-2 h-7 w-24 animate-pulse rounded-md bg-slate-100" />
+                ) : (
+                    <p
+                        className={`
+                            mt-1 truncate text-lg font-bold
+                            tracking-tight
+                            sm:text-xl
+                            ${positive
+                                ? 'text-emerald-700'
+                                : warning
+                                    ? 'text-amber-700'
+                                    : 'text-slate-900'
+                            }
+                        `}
+                    >
+                        ₹{Number(value || 0).toLocaleString('en-IN', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                        })}
+                    </p>
+                )}
+            </div>
         </div>
     )
 }
-
 function ProfitCard({
     label,
     value,
     loading,
 }) {
     return (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 shadow-sm sm:p-4">
-            <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold text-emerald-700">
+        <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-100 text-sm font-bold text-emerald-700">
+                    ₹
+                </span>
+
+                <p className="text-xs font-medium text-slate-500">
                     {label}
                 </p>
-
-                <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-bold text-emerald-700">
-                    PROFIT
-                </span>
             </div>
 
-            <p className="mt-2 text-lg font-bold text-emerald-700 sm:text-xl">
+            <p className="mt-3 text-xl font-bold tracking-tight text-emerald-700">
                 {loading
                     ? '...'
                     : currency.format(value)}
             </p>
+
+            <div className="mt-2 h-1 w-10 rounded-full bg-emerald-200" />
         </div>
     )
 }
-
 function MiniStat({ label, value }) {
     return (
         <div className="rounded-lg bg-white px-2.5 py-2">
