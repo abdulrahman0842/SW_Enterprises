@@ -143,7 +143,7 @@ export function SaleCheckout({
 
                                 <p className="text-xs text-slate-500">
                                     {item.quantity} boxes × ₹
-                                    {item.rate.toFixed(2)}
+                                    {item.mrp.toFixed(2)}
                                 </p>
                             </div>
 
@@ -151,7 +151,7 @@ export function SaleCheckout({
                                 ₹
                                 {(
                                     item.quantity *
-                                    item.rate
+                                    item.mrp
                                 ).toFixed(2)}
                             </span>
                         </div>

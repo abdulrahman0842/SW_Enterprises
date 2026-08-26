@@ -28,7 +28,7 @@ export function SaleItems({
 
     function handleAddProduct() {
         if (!selectedProduct) return
-       
+
         const boxes = Number(quantity)
         const salePrice = Number(mrp)
         const purchaseRate = Number(selectedProduct.rate || 0)
@@ -334,7 +334,7 @@ export function SaleItems({
                                         </p>
 
                                         <p className="mt-0.5 text-xs text-slate-500">
-                                            ₹{Number(item.rate).toFixed(2)} / box
+                                            ₹{Number(item.rate).toFixed(2)}  P.Rate
                                         </p>
                                     </div>
 
@@ -398,7 +398,7 @@ export function SaleItems({
                                             ₹
                                             {(
                                                 item.quantity *
-                                                item.rate
+                                                item.mrp
                                             ).toFixed(2)}
                                         </p>
                                     </div>

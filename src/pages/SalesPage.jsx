@@ -88,12 +88,12 @@ export function SalesPage() {
             setIsSubmitting(true)
 
             const result = await createSale(saleData)
-
+            console.log("result",result)
             setLastSavedSale(result)
             setSelectedSaleId(result.id)
 
             showToast(
-                `Sale #${result.id} created successfully. Stock updated.`,
+                `Sale #${result.sale_id} created successfully. Stock updated.`,
                 'success'
             )
 

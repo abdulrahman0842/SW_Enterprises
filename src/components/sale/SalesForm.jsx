@@ -63,7 +63,7 @@ export const SalesForm = forwardRef(function SalesForm(
     function calculateTotal() {
         return items.reduce(
             (total, item) =>
-                total + item.quantity * item.rate,
+                total + item.quantity * item.mrp,
             0
         )
     }
