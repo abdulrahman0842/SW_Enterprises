@@ -9,6 +9,7 @@ import {
 } from '../services/salesHistoryService'
 import { fetchProducts } from '../services/productsService'
 import { openWhatsappInvoice } from '../utils/whatsapp'
+import { shareInvoice } from '../utils/ShareInovice'
 
 export function SalesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -88,7 +89,7 @@ export function SalesPage() {
             setIsSubmitting(true)
 
             const result = await createSale(saleData)
-            console.log("result",result)
+            console.log("result", result)
             setLastSavedSale(result)
             setSelectedSaleId(result.id)
 
@@ -124,11 +125,12 @@ export function SalesPage() {
                 sale.id === selectedSaleId
         ) || null
 
-    function handleSendInvoice(sale) {
-        openWhatsappInvoice(
-            sale,
-            productsById
-        )
+    async function handleSendInvoice(sale) {
+        await shareInvoice({ sale, productsById })
+        // openWhatsappInvoice(
+        //     sale,
+        //     productsById
+        // )
     }
 
     return (
@@ -232,7 +234,7 @@ export function SalesPage() {
                                         }
                                         className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:w-auto"
                                     >
-                                        Send WhatsApp Invoice
+                                        Share Invoice
                                     </button>
                                 </div>
                             </div>
