@@ -79,143 +79,275 @@ export function SalesHistoryList({
                         <article
                             key={sale.id}
                             className={`overflow-hidden rounded-xl border transition ${selected
-                                ? 'border-sky-300 bg-sky-50/30 ring-1 ring-sky-100'
+                                ? 'border-sky-300 bg-white ring-1 ring-sky-100'
                                 : 'border-slate-200 bg-white'
                                 }`}
                         >
-                            {/* Header */}
+                            {/* SALE SUMMARY */}
                             <div
-                                className={`border-b px-4 py-3 ${selected
-                                    ? 'border-sky-100 bg-sky-50/60'
-                                    : 'border-slate-200 bg-slate-50/70'
+                                className={`${selected
+                                    ? 'bg-sky-50/50'
+                                    : 'bg-slate-50/70'
                                     }`}
                             >
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs font-bold text-sky-600">
-                                                #{sale.id}
-                                            </span>
-
-                                            <span className="text-xs text-slate-300">
-                                                |
-                                            </span>
-
-                                            <span className="text-xs text-slate-500">
-                                                {sale.date}
-                                            </span>
-                                        </div>
-
-                                        <h3 className="mt-1 truncate text-sm font-semibold text-slate-900">
-                                            {sale.customer_name ||
-                                                'Walk-in Customer'}
-                                        </h3>
-                                    </div>
-
-                                    <span
-                                        className={`shrink-0 rounded-md px-2 py-1 text-[10px] font-bold ${getPaymentBadgeClass(
-                                            sale.payment_status
-                                        )
-                                            }`}
-                                    >
-                                        {sale.payment_status}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Financial summary */}
-                            <div className="grid grid-cols-2 border-b border-slate-200">
-                                <div className="border-r border-b border-slate-200 px-4 py-3">
-                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                        Total
-                                    </p>
-
-                                    <p className="mt-1 text-base font-bold text-slate-900">
-                                        {formatCurrency(
-                                            sale.total_amount
-                                        )}
-                                    </p>
-                                </div>
-
+                                {/* Header */}
                                 <div className="border-b border-slate-200 px-4 py-3">
-                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                        Products
-                                    </p>
-
-                                    <p className="mt-1 text-base font-bold text-slate-900">
-                                        {sale.product_count}
-                                    </p>
-                                </div>
-
-                                <div className="border-r border-slate-200 bg-emerald-50/40 px-4 py-3">
-                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                                        Paid
-                                    </p>
-
-                                    <p className="mt-1 text-sm font-bold text-emerald-700">
-                                        {formatCurrency(
-                                            sale.amount_paid
-                                        )}
-                                    </p>
-                                </div>
-
-                                <div
-                                    className={`px-4 py-3 ${balance > 0
-                                        ? 'bg-amber-50/50'
-                                        : 'bg-slate-50/50'
-                                        }`}
-                                >
-                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
-                                        Balance
-                                    </p>
-
-                                    <p
-                                        className={`mt-1 text-sm font-bold ${balance > 0
-                                            ? 'text-amber-700'
-                                            : 'text-slate-700'
-                                            }`}
-                                    >
-                                        {formatCurrency(
-                                            sale.balance_amount
-                                        )}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Customer contact */}
-                            {sale.customer_contact && (
-                                <div className="border-b border-slate-200 px-4 py-3">
-                                    <div className="flex items-center justify-between gap-3">
+                                    <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                            <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                                Contact
-                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs font-bold text-sky-600">
+                                                    #{sale.id}
+                                                </span>
 
-                                            <p className="mt-1 truncate text-sm font-medium text-slate-700">
-                                                {sale.customer_contact}
-                                            </p>
+                                                <span className="text-xs text-slate-300">
+                                                    |
+                                                </span>
+
+                                                <span className="text-xs text-slate-500">
+                                                    {sale.date}
+                                                </span>
+                                            </div>
+
+                                            <h3 className="mt-1 truncate text-sm font-semibold text-slate-900">
+                                                {sale.customer_name || 'Walk-in Customer'}
+                                            </h3>
+                                        </div>
+
+                                        <div className="flex shrink-0 items-center gap-2">
+                                            {/* Payment status */}
+                                            <span
+                                                className={`rounded-md px-2 py-1 text-[10px] font-bold ${getPaymentBadgeClass(
+                                                    sale.payment_status
+                                                )}`}
+                                            >
+                                                {sale.payment_status}
+                                            </span>
+
+                                            {/* Share invoice */}
+                                            {onSendInvoice && (
+                                                <button
+                                                    type="button"
+                                                    onClick={async () => {
+                                                        await onSendInvoice(sale)
+                                                    }}
+                                                    aria-label="Share invoice"
+                                                    title="Share invoice"
+                                                    className="rounded-md bg-emerald-50 p-1.5 text-emerald-600 transition hover:bg-emerald-100 hover:text-emerald-700"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        className="h-4 w-4"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M7 17L17 7M8 7h9v9"
+                                                        />
+                                                    </svg>
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
+                                </div>
+
+                                {/* Financial summary */}
+                                <div className="grid grid-cols-3 border-b border-slate-200">
+                                    {/* Total */}
+                                    <div className="border-r border-slate-200 px-3 py-2.5">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                            Total
+                                        </p>
+
+                                        <p className="mt-0.5 text-sm font-bold text-slate-900">
+                                            {formatCurrency(sale.total_amount)}
+                                        </p>
+                                    </div>
+
+                                    {/* Paid */}
+                                    <div className="border-r border-slate-200 bg-emerald-50/40 px-3 py-2.5">
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                            Paid
+                                        </p>
+
+                                        <p className="mt-0.5 text-sm font-bold text-emerald-700">
+                                            {formatCurrency(sale.amount_paid)}
+                                        </p>
+                                    </div>
+
+                                    {/* Balance */}
+                                    <div
+                                        className={`px-3 py-2.5 ${balance > 0
+                                            ? 'bg-amber-50/50'
+                                            : 'bg-slate-50/50'
+                                            }`}
+                                    >
+                                        <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+                                            Balance
+                                        </p>
+
+                                        <p
+                                            className={`mt-0.5 text-sm font-bold ${balance > 0
+                                                ? 'text-amber-700'
+                                                : 'text-slate-700'
+                                                }`}
+                                        >
+                                            {formatCurrency(sale.balance_amount)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Customer contact + expand icon */}
+                                <div className="flex items-center justify-between gap-3 px-4 py-3">
+                                    <div className="min-w-0">
+                                        {sale.customer_contact ? (
+                                            <>
+                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                                                    Contact
+                                                </p>
+
+                                                <p className="mt-0.5 truncate text-sm font-medium text-slate-700">
+                                                    {sale.customer_contact}
+                                                </p>
+                                            </>
+                                        ) : (
+                                            <p className="text-xs text-slate-400">
+                                                No contact information
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* Expand / Collapse */}
+                                    <button
+                                        type="button"
+                                        onClick={() => onSelectSale(sale.id)}
+                                        aria-label={selected ? 'Hide sale details' : 'View sale details'}
+                                        className={`shrink-0 rounded-full border p-2 transition-all ${selected
+                                                ? 'border-slate-300 bg-slate-100 text-slate-700 shadow-sm'
+                                                : 'border-slate-200 bg-white text-slate-500 shadow-sm hover:border-slate-300 hover:bg-slate-100 hover:text-slate-700'
+                                            }`}
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.5"
+                                            className={`h-5 w-5 transition-transform duration-200 ${selected ? 'rotate-180' : ''
+                                                }`}
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="m6 9 6 6 6-6"
+                                            />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/*EXPANDED SALE DETAILS */}
+                            {selected && (
+                                <div className="border-t border-slate-200 bg-white">
+                                    {/* Items header */}
+                                    <div className="border-b border-slate-100 px-4 py-2 justify-between flex items-center">
+                                        <div>
+                                            <h4 className="text-sm font-semibold text-slate-900">
+                                                Sale items
+                                            </h4>
+
+                                            <p className="mt-0.5 text-xs text-slate-500">
+                                                Products included in this sale.
+                                            </p>
+                                        </div>
+                                        <span className="shrink-0 rounded-full bg-slate-100 px-2.5 py-1 text-[10px] font-semibold text-slate-600">
+                                            {sale.product_count} items
+                                        </span>
+                                    </div>
+
+                                    {/* Items */}
+                                    <div className="space-y-2 p-3">
+                                        {(selectedSale.items || []).map((item, index) => {
+                                            const product =
+                                                productsById.get(Number(item.product_id)) || {}
+
+                                            const productName =
+                                                product.name || 'Unknown product'
+
+                                            const quantity = Number(item.quantity || 0)
+
+                                            const purchaseRate = Number(item.rate || 0)
+
+                                            const sellingPrice = Number(item.mrp || 0)
+
+                                            const total = sellingPrice * quantity
+
+                                            const profit =
+                                                (sellingPrice - purchaseRate) * quantity
+
+                                            return (
+                                                <article
+                                                    key={`${selectedSale.id}-${item.product_id || index}`}
+                                                    className="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5"
+                                                >
+                                                    {/* Product + total */}
+                                                    <div className="flex items-center justify-between gap-3">
+                                                        <h5 className="min-w-0 truncate text-sm font-semibold text-slate-800">
+                                                            {productName}
+                                                        </h5>
+
+                                                        <p className="shrink-0 text-sm font-bold text-sky-700">
+                                                            {formatCurrency(total)}
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Compact details */}
+                                                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-200 pt-2 text-[11px]">
+                                                        <span className="text-slate-500">
+                                                            Qty:{' '}
+                                                            <span className="font-semibold text-slate-700">
+                                                                {quantity}
+                                                            </span>
+                                                        </span>
+
+                                                        <span className="text-slate-300">•</span>
+
+                                                        <span className="text-slate-500">
+                                                            Buy:{' '}
+                                                            <span className="font-semibold text-slate-700">
+                                                                {formatCurrency(purchaseRate)}
+                                                            </span>
+                                                        </span>
+
+                                                        <span className="text-slate-300">•</span>
+
+                                                        <span className="text-slate-500">
+                                                            Sell:{' '}
+                                                            <span className="font-semibold text-slate-700">
+                                                                {formatCurrency(sellingPrice)}
+                                                            </span>
+                                                        </span>
+
+                                                        <span className="text-slate-300">•</span>
+
+                                                        <span className="text-emerald-600">
+                                                            Profit:{' '}
+                                                            <span className="font-semibold">
+                                                                {formatCurrency(profit)}
+                                                            </span>
+                                                        </span>
+                                                    </div>
+                                                </article>
+                                            )
+                                        })}
+                                    </div>
+
+
                                 </div>
                             )}
-
-                            {/* Action */}
-                            <div className="p-3">
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        onSelectSale(sale.id)
-                                    }
-                                    className={`w-full rounded-lg px-3 py-2.5 text-xs font-semibold transition ${selected
-                                        ? 'bg-slate-800 text-white'
-                                        : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100'
-                                        }`}
-                                >
-                                    {selected
-                                        ? 'Viewing items'
-                                        : 'View items'}
-                                </button>
-                            </div>
                         </article>
                     )
                 })}
@@ -364,235 +496,6 @@ export function SalesHistoryList({
                 </div>
             </div>
 
-            {/* =========================
-                SELECTED SALE DETAILS
-            ========================== */}
-            {selectedSale && (
-                <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                    {/* Header */}
-                    <div className="border-b border-slate-100 bg-slate-50/70 px-4 py-4 sm:px-5">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <div className="flex items-center gap-2">
-                                    <p className="text-xs font-semibold uppercase tracking-wider text-sky-600">
-                                        Sale #{selectedSale.id}
-                                    </p>
-
-                                    <span className="text-xs text-slate-400">
-                                        •
-                                    </span>
-
-                                    <span className="text-xs text-slate-500">
-                                        {selectedSale.date}
-                                    </span>
-                                </div>
-
-                                <h3 className="mt-1 text-lg font-bold text-slate-900">
-                                    {selectedSale.customer_name ||
-                                        'Walk-in Customer'}
-                                </h3>
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-4 justify-between">
-                                <span
-                                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getPaymentBadgeClass(
-                                        selectedSale.payment_status
-                                    )}`}
-                                >
-                                    {selectedSale.payment_status}
-                                </span>
-
-                                {onSendInvoice && (
-                                    <button
-                                        type="button"
-                                        disabled={sharing}
-                                        onClick={async () => {
-                                            try {
-                                                setSharing(true)
-                                                await onSendInvoice(selectedSale)
-                                            } finally {
-                                                setSharing(false)
-                                            }
-                                        }}
-                                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white shadow-sm transition active:scale-[0.98] ${sharing
-                                                ? 'cursor-not-allowed bg-emerald-400'
-                                                : 'bg-emerald-600 hover:bg-emerald-700'
-                                            }`}
-                                    >
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                            className="h-4 w-4"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 16V4m0 0 4 4m-4-4L8 8"
-                                            />
-
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M5 12v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"
-                                            />
-                                        </svg>
-
-                                        {sharing ? 'Generating...' : 'Share Invoice'}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Sale summary */}
-                    <div className="grid grid-cols-2 border-b border-slate-100 sm:grid-cols-4">
-                        <div className="border-b border-slate-100 px-4 py-3 sm:border-b-0 sm:border-r">
-                            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                                Total
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-slate-900">
-                                {formatCurrency(
-                                    selectedSale.total_amount
-                                )}
-                            </p>
-                        </div>
-
-                        <div className="border-b border-slate-100 px-4 py-3 sm:border-b-0 sm:border-r">
-                            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                                Paid
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-emerald-700">
-                                {formatCurrency(
-                                    selectedSale.amount_paid
-                                )}
-                            </p>
-                        </div>
-
-                        <div className="px-4 py-3 sm:border-r">
-                            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                                Balance
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-amber-700">
-                                {formatCurrency(
-                                    selectedSale.balance_amount
-                                )}
-                            </p>
-                        </div>
-
-                        <div className="px-4 py-3">
-                            <p className="text-[11px] font-medium uppercase tracking-wide text-slate-400">
-                                Products
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-slate-900">
-                                {selectedSale.product_count}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Items */}
-                    <div className="p-4 sm:p-5">
-                        <div className="mb-3">
-                            <h4 className="text-sm font-semibold text-slate-900">
-                                Sale items
-                            </h4>
-
-                            <p className="mt-0.5 text-xs text-slate-500">
-                                Products included in this sale.
-                            </p>
-                        </div>
-
-                        <div className="space-y-3">
-                            {(selectedSale.items || []).map((item, index) => {
-                                const product =
-                                    productsById.get(Number(item.product_id)) || {}
-
-                                const productName =
-                                    product.name || 'Unknown product'
-
-                                const quantity = Number(item.quantity || 0)
-                                const purchaseRate = Number(item.rate || 0)
-                                const sellingPrice = Number(item.mrp || 0)
-
-                                const total = sellingPrice * quantity
-                                const profit =
-                                    (sellingPrice - purchaseRate) * quantity
-
-                                return (
-                                    <article
-                                        key={`${selectedSale.id}-${item.product_id || index}`}
-                                        className="rounded-xl border border-slate-200 bg-slate-50/70 p-4"
-                                    >
-                                        {/* Product header */}
-                                        <div className="flex items-start justify-between gap-3">
-                                            <div className="min-w-0">
-                                                <h5 className="truncate text-sm font-semibold text-slate-900">
-                                                    {productName}
-                                                </h5>
-
-                                                <p className="mt-0.5 text-xs text-slate-400">
-                                                    Product ID: {item.product_id}
-                                                </p>
-                                            </div>
-
-                                            <p className="shrink-0 text-sm font-bold text-sky-700">
-                                                {formatCurrency(total)}
-                                            </p>
-                                        </div>
-
-                                        {/* Item details */}
-                                        <div className="mt-3 grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 sm:grid-cols-4">
-                                            <Detail
-                                                label="Quantity"
-                                                value={`${quantity} boxes`}
-                                            />
-
-                                            <Detail
-                                                label="Purchase Rate"
-                                                value={formatCurrency(
-                                                    purchaseRate
-                                                )}
-                                            />
-
-                                            <Detail
-                                                label="Selling Price"
-                                                value={formatCurrency(
-                                                    sellingPrice
-                                                )}
-                                            />
-
-                                            <Detail
-                                                label="Profit"
-                                                value={formatCurrency(profit)}
-                                            />
-                                        </div>
-                                    </article>
-                                )
-                            })}
-                        </div>
-                    </div>
-                </section>
-            )}
         </>
-    )
-}
-
-function Detail({ label, value }) {
-    return (
-        <div>
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                {label}
-            </p>
-
-            <p className="mt-1 text-sm font-medium text-slate-700">
-                {value}
-            </p>
-        </div>
     )
 }

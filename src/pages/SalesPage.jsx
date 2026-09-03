@@ -19,7 +19,7 @@ export function SalesPage() {
     const [salesError, setSalesError] = useState('')
     const [productsById, setProductsById] = useState(new Map())
     const [lastSavedSale, setLastSavedSale] = useState(null)
-
+    const [showSaleForm, setShowSaleForm] = useState(false)
     const formRef = useRef(null)
 
     const {
@@ -183,9 +183,14 @@ export function SalesPage() {
                 SALE FORM
             ========================== */}
             <section className="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-200 px-4 py-4 sm:px-5">
+                {/* Header / Toggle */}
+                <button
+                    type="button"
+                    onClick={() => setShowSaleForm((prev) => !prev)}
+                    className="flex w-full items-center justify-between border-b border-slate-200 px-4 py-4 text-left transition hover:bg-slate-50 sm:px-5"
+                >
                     <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-xl font-medium text-sky-600">
                             +
                         </div>
 
@@ -195,52 +200,75 @@ export function SalesPage() {
                             </h2>
 
                             <p className="mt-0.5 text-xs text-slate-500">
-                                Create a new sale
+                                {showSaleForm
+                                    ? 'Enter sale details'
+                                    : 'Click to create a new sale'}
                             </p>
                         </div>
                     </div>
-                </div>
 
-                <div className="p-4 sm:p-5">
-                    <SalesForm
-                        ref={formRef}
-                        onSubmit={handleSubmitSale}
-                        isLoading={isSubmitting}
-                    />
+                    {/* Expand / Collapse icon */}
+                    <div
+                        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition ${showSaleForm ? 'bg-slate-100 text-slate-700' : ''
+                            }`}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            className={`h-4 w-4 transition-transform duration-200 ${showSaleForm ? 'rotate-180' : ''
+                                }`}
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="m6 9 6 6 6-6"
+                            />
+                        </svg>
+                    </div>
+                </button>
 
-                    {/* Invoice action */}
-                    {lastSavedSale && (
-                        <div className="mt-4 border-t border-slate-100 pt-4">
-                            <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                    <div>
-                                        <p className="text-sm font-semibold text-emerald-800">
-                                            Sale #
-                                            {lastSavedSale.id}{' '}
-                                            created
-                                        </p>
+                {/* Form */}
+                {showSaleForm && (
+                    <div className="p-4 sm:p-5">
+                        <SalesForm
+                            ref={formRef}
+                            onSubmit={handleSubmitSale}
+                            isLoading={isSubmitting}
+                        />
 
-                                        <p className="mt-0.5 text-xs text-emerald-700">
-                                            Stock has been updated successfully.
-                                        </p>
+                        {/* Invoice action */}
+                        {lastSavedSale && (
+                            <div className="mt-4 border-t border-slate-100 pt-4">
+                                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <p className="text-sm font-semibold text-emerald-800">
+                                                Sale #{lastSavedSale.id} created
+                                            </p>
+
+                                            <p className="mt-0.5 text-xs text-emerald-700">
+                                                Stock has been updated successfully.
+                                            </p>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleSendInvoice(lastSavedSale)
+                                            }
+                                            className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:w-auto"
+                                        >
+                                            Share Invoice
+                                        </button>
                                     </div>
-
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleSendInvoice(
-                                                lastSavedSale
-                                            )
-                                        }
-                                        className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700 sm:w-auto"
-                                    >
-                                        Share Invoice
-                                    </button>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </section>
 
             {/* =========================

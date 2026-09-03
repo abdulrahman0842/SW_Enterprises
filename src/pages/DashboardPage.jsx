@@ -99,200 +99,201 @@ export function DashboardPage() {
     })
 
     useEffect(() => {
+        async function loadDashboardData() {
+            try {
+                setLoading(true)
+                setError('')
+
+                const [salesData, productsData] =
+                    await Promise.all([
+                        fetchSalesHistory(),
+                        fetchProducts(),
+                    ])
+
+                const now = new Date()
+
+                const todayString = getDateString(now)
+                const startOfWeek = getStartOfWeek(now)
+                const startOfMonth = getStartOfMonth(now)
+
+                console.log('Dashboard dates:', {
+                    today: todayString,
+                    weekStart: startOfWeek,
+                    monthStart: startOfMonth,
+                })
+
+                console.log('Sales:', salesData)
+
+                /*
+                 * SALES
+                 *
+                 * PostgreSQL DATE values are YYYY-MM-DD.
+                 * Compare them as strings instead of converting
+                 * them into JavaScript Date objects.
+                 */
+
+                const salesTodayData = salesData.filter(
+                    (sale) =>
+                        sale.date?.slice(0, 10) ===
+                        todayString
+                )
+
+                const salesWeekData = salesData.filter(
+                    (sale) => {
+                        const saleDate =
+                            sale.date?.slice(0, 10)
+
+                        if (!saleDate) return false
+
+                        return (
+                            saleDate >= startOfWeek &&
+                            saleDate <= todayString
+                        )
+                    }
+                )
+
+                const salesMonthData = salesData.filter(
+                    (sale) => {
+                        const saleDate =
+                            sale.date?.slice(0, 10)
+
+                        if (!saleDate) return false
+
+                        return (
+                            saleDate >= startOfMonth &&
+                            saleDate <= todayString
+                        )
+                    }
+                )
+
+                console.log('Filtered sales:', {
+                    today: salesTodayData,
+                    week: salesWeekData,
+                    month: salesMonthData,
+                })
+
+                /*
+                 * SALES TOTALS
+                 */
+
+                const salesToday =
+                    getSalesTotal(salesTodayData)
+
+                const salesWeek =
+                    getSalesTotal(salesWeekData)
+
+                const salesMonth =
+                    getSalesTotal(salesMonthData)
+
+                /*
+                 * PROFIT
+                 *
+                 * item.rate = purchase price
+                 * item.mrp  = selling price
+                 */
+
+                const profitToday =
+                    calculateProfit(salesTodayData)
+
+                const profitWeek =
+                    calculateProfit(salesWeekData)
+
+                const profitMonth =
+                    calculateProfit(salesMonthData)
+
+                /*
+                 * OUTSTANDING
+                 */
+
+                const outstanding = salesData
+                    .filter(
+                        (sale) =>
+                            sale.payment_status !== 'Paid'
+                    )
+                    .reduce(
+                        (sum, sale) =>
+                            sum +
+                            Number(
+                                sale.balance_amount || 0
+                            ),
+                        0
+                    )
+
+                /*
+                 * INVENTORY
+                 *
+                 * quantity_per_box has been removed from
+                 * the product model, so don't calculate
+                 * bottle quantities here anymore.
+                 */
+
+                const normalizedInventory =
+                    productsData
+                        .map((product) => ({
+                            ...product,
+
+                            stockBoxes: Number(
+                                product.stock || 0
+                            ),
+                        }))
+                        .sort((a, b) =>
+                            a.name.localeCompare(b.name)
+                        )
+
+                const lowStockItems =
+                    normalizedInventory.filter(
+                        (product) =>
+                            product.stockBoxes <= 5
+                    )
+
+                /*
+                 * STATE
+                 */
+
+                setInventory(normalizedInventory)
+
+                setLowStock(lowStockItems)
+
+                setSales(
+                    [...salesData]
+                        .sort(
+                            (a, b) =>
+                                String(b.date).localeCompare(
+                                    String(a.date)
+                                )
+                        )
+                        .slice(0, 5)
+                )
+
+                setSummary({
+                    salesToday,
+                    profitToday,
+
+                    salesWeek,
+                    profitWeek,
+
+                    salesMonth,
+                    profitMonth,
+
+                    outstanding,
+                })
+            } catch (err) {
+                console.error(
+                    'Failed to load dashboard data:',
+                    err
+                )
+
+                setError(
+                    'Failed to load dashboard data.'
+                )
+            } finally {
+                setLoading(false)
+            }
+        }
         loadDashboardData()
     }, [])
 
-    async function loadDashboardData() {
-        try {
-            setLoading(true)
-            setError('')
 
-            const [salesData, productsData] =
-                await Promise.all([
-                    fetchSalesHistory(),
-                    fetchProducts(),
-                ])
-
-            const now = new Date()
-
-            const todayString = getDateString(now)
-            const startOfWeek = getStartOfWeek(now)
-            const startOfMonth = getStartOfMonth(now)
-
-            console.log('Dashboard dates:', {
-                today: todayString,
-                weekStart: startOfWeek,
-                monthStart: startOfMonth,
-            })
-
-            console.log('Sales:', salesData)
-
-            /*
-             * SALES
-             *
-             * PostgreSQL DATE values are YYYY-MM-DD.
-             * Compare them as strings instead of converting
-             * them into JavaScript Date objects.
-             */
-
-            const salesTodayData = salesData.filter(
-                (sale) =>
-                    sale.date?.slice(0, 10) ===
-                    todayString
-            )
-
-            const salesWeekData = salesData.filter(
-                (sale) => {
-                    const saleDate =
-                        sale.date?.slice(0, 10)
-
-                    if (!saleDate) return false
-
-                    return (
-                        saleDate >= startOfWeek &&
-                        saleDate <= todayString
-                    )
-                }
-            )
-
-            const salesMonthData = salesData.filter(
-                (sale) => {
-                    const saleDate =
-                        sale.date?.slice(0, 10)
-
-                    if (!saleDate) return false
-
-                    return (
-                        saleDate >= startOfMonth &&
-                        saleDate <= todayString
-                    )
-                }
-            )
-
-            console.log('Filtered sales:', {
-                today: salesTodayData,
-                week: salesWeekData,
-                month: salesMonthData,
-            })
-
-            /*
-             * SALES TOTALS
-             */
-
-            const salesToday =
-                getSalesTotal(salesTodayData)
-
-            const salesWeek =
-                getSalesTotal(salesWeekData)
-
-            const salesMonth =
-                getSalesTotal(salesMonthData)
-
-            /*
-             * PROFIT
-             *
-             * item.rate = purchase price
-             * item.mrp  = selling price
-             */
-
-            const profitToday =
-                calculateProfit(salesTodayData)
-
-            const profitWeek =
-                calculateProfit(salesWeekData)
-
-            const profitMonth =
-                calculateProfit(salesMonthData)
-
-            /*
-             * OUTSTANDING
-             */
-
-            const outstanding = salesData
-                .filter(
-                    (sale) =>
-                        sale.payment_status !== 'Paid'
-                )
-                .reduce(
-                    (sum, sale) =>
-                        sum +
-                        Number(
-                            sale.balance_amount || 0
-                        ),
-                    0
-                )
-
-            /*
-             * INVENTORY
-             *
-             * quantity_per_box has been removed from
-             * the product model, so don't calculate
-             * bottle quantities here anymore.
-             */
-
-            const normalizedInventory =
-                productsData
-                    .map((product) => ({
-                        ...product,
-
-                        stockBoxes: Number(
-                            product.stock || 0
-                        ),
-                    }))
-                    .sort((a, b) =>
-                        a.name.localeCompare(b.name)
-                    )
-
-            const lowStockItems =
-                normalizedInventory.filter(
-                    (product) =>
-                        product.stockBoxes <= 5
-                )
-
-            /*
-             * STATE
-             */
-
-            setInventory(normalizedInventory)
-
-            setLowStock(lowStockItems)
-
-            setSales(
-                [...salesData]
-                    .sort(
-                        (a, b) =>
-                            String(b.date).localeCompare(
-                                String(a.date)
-                            )
-                    )
-                    .slice(0, 5)
-            )
-
-            setSummary({
-                salesToday,
-                profitToday,
-
-                salesWeek,
-                profitWeek,
-
-                salesMonth,
-                profitMonth,
-
-                outstanding,
-            })
-        } catch (err) {
-            console.error(
-                'Failed to load dashboard data:',
-                err
-            )
-
-            setError(
-                'Failed to load dashboard data.'
-            )
-        } finally {
-            setLoading(false)
-        }
-    }
 
     return (
         <div className="space-y-4 sm:space-y-5">
