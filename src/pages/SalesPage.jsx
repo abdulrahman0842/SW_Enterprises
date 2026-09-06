@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { SalesForm } from '../components/sale/SalesForm'
-import { SalesHistoryList } from '../components/SalesHistoryList'
+import { SalesHistoryList } from '../components/sale/SalesHistoryList'
 import { Toast, useToast } from '../components/Toast'
 import { createSale } from '../services/salesService'
 import {
@@ -8,7 +8,6 @@ import {
     normalizeSalesWithCounts,
 } from '../services/salesHistoryService'
 import { fetchProducts } from '../services/productsService'
-import { openWhatsappInvoice } from '../utils/whatsapp'
 import { shareInvoice } from '../utils/ShareInovice'
 
 export function SalesPage() {
@@ -22,6 +21,7 @@ export function SalesPage() {
     const [showSaleForm, setShowSaleForm] = useState(false)
     const formRef = useRef(null)
 
+    const [paymentFilter, setPaymentFilter] = useState("all");
     const {
         toasts,
         showToast,
@@ -132,7 +132,12 @@ export function SalesPage() {
         //     productsById
         // )
     }
+    const filteredSales = sales.filter((sale) => {
+        if (paymentFilter === "all") return true;
 
+        return sale.payment_status?.toLowerCase() === paymentFilter;
+    });
+   
     return (
         <div className="space-y-4 sm:space-y-6">
 
@@ -275,28 +280,43 @@ export function SalesPage() {
                 SALES HISTORY
             ========================== */}
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/70 px-4 py-3.5 sm:px-5">
-                    <div className="min-w-0">
-                        <h2 className="text-base font-semibold text-slate-900 sm:text-lg">
-                            Recent Sales
-                        </h2>
+                <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 px-3 py-2.5 sm:px-4">
 
-                        <p className="mt-0.5 text-xs text-slate-500">
-                            View previous sales and invoices
-                        </p>
+                    {/* Title */}
+                    <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+                        Recent Sales
+                    </h2>
+
+                    {/* Filter + Count */}
+                    <div className="flex items-center gap-1.5">
+
+                        <select
+                            value={paymentFilter}
+                            onChange={(e) => setPaymentFilter(e.target.value)}
+                            className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-200"
+                        >
+                            <option value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="partial">Partial</option>
+                        </select>
+
+                        <span className="flex h-8 items-center rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-600">
+                            {filteredSales.length}
+                            <span className="ml-1 hidden sm:inline">
+                                {filteredSales.length === 1 ? "sale" : "sales"}
+                            </span>
+                        </span>
+
                     </div>
-
-                    <span className="shrink-0 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">
-                        {sales.length}{' '}
-                        {sales.length === 1 ? 'sale' : 'sales'}
-                    </span>
                 </div>
 
                 {/* Sales List */}
                 <div className="p-2.5 sm:p-4">
                     <SalesHistoryList
-                        sales={sales}
+                        sales={filteredSales}
                         loading={loadingSales}
                         error={salesError}
                         onSelectSale={setSelectedSaleId}
@@ -305,6 +325,7 @@ export function SalesPage() {
                         onSendInvoice={handleSendInvoice}
                     />
                 </div>
+
             </section>
 
             {/* Toasts */}
