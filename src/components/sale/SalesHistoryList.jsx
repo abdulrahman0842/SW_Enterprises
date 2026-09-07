@@ -1,4 +1,4 @@
-import { useState } from "react"
+
 
 function getPaymentBadgeClass(status) {
     switch (status) {
@@ -6,7 +6,10 @@ function getPaymentBadgeClass(status) {
             return 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-200'
 
         case 'Partial':
-            return 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200'
+            return 'bg-violet-50 text-violet-700 ring-1 ring-inset ring-violet-200'
+
+        case 'Pending':
+            return 'bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-200'
 
         default:
             return 'bg-slate-100 text-slate-600 ring-1 ring-inset ring-slate-200'
@@ -26,7 +29,6 @@ export function SalesHistoryList({
     productsById,
     onSendInvoice,
 }) {
-    const [sharing, setSharing] = useState(false)
     if (loading) {
         return (
             <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
@@ -111,6 +113,33 @@ export function SalesHistoryList({
                                             <h3 className="mt-1 truncate text-sm font-semibold text-slate-900">
                                                 {sale.customer_name || 'Walk-in Customer'}
                                             </h3>
+
+                                            {sale.customer_contact && (
+                                                <a
+                                                    href={`tel:${sale.customer_contact}`}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-400 transition hover:text-sky-600"
+                                                >
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="1.8"
+                                                        className="h-3 w-3"
+                                                    >
+                                                        <path
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                            d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.087l-4.423-.994a1.125 1.125 0 0 0-1.173.417l-.97 1.293a1.125 1.125 0 0 1-1.21.37 12.06 12.06 0 0 1-7.501-7.501 1.125 1.125 0 0 1 .37-1.21l1.293-.97c.34-.255.5-.69.417-1.173L6.76 3.85A1.125 1.125 0 0 0 5.673 3H4.5A2.25 2.25 0 0 0 2.25 5.25v1.5Z"
+                                                        />
+                                                    </svg>
+
+                                                    <span className="truncate">
+                                                        {sale.customer_contact}
+                                                    </span>
+                                                </a>
+                                            )}
                                         </div>
 
                                         <div className="flex shrink-0 items-center gap-2">
@@ -199,44 +228,93 @@ export function SalesHistoryList({
                                         </p>
                                     </div>
                                 </div>
+                                {/* Sale actions */}
+                                <div className="flex items-center justify-end gap-1.5 border-t border-slate-200 px-4 py-2">
 
-                                {/* Customer contact + expand icon */}
-                                <div className="flex items-center justify-between gap-3 px-4 py-3">
-                                    <div className="min-w-0">
-                                        {sale.customer_contact ? (
-                                            <>
-                                                <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                                                    Contact
-                                                </p>
-
-                                                <p className="mt-0.5 truncate text-sm font-medium text-slate-700">
-                                                    {sale.customer_contact}
-                                                </p>
-                                            </>
-                                        ) : (
-                                            <p className="text-xs text-slate-400">
-                                                No contact information
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    {/* Expand / Collapse */}
+                                    {/* Edit */}
                                     <button
                                         type="button"
-                                        onClick={() => onSelectSale(sale.id)}
-                                        aria-label={selected ? 'Hide sale details' : 'View sale details'}
-                                        className={`shrink-0 rounded-full border p-2 transition-all ${selected
-                                                ? 'border-slate-300 bg-slate-100 text-slate-700 shadow-sm'
-                                                : 'border-slate-200 bg-white text-slate-500 shadow-sm hover:border-slate-300 hover:bg-slate-100 hover:text-slate-700'
-                                            }`}
+                                        onClick={() => onEditSale(sale.id)}
+                                        className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-sky-50 hover:text-sky-600"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
                                             viewBox="0 0 24 24"
                                             fill="none"
                                             stroke="currentColor"
-                                            strokeWidth="2.5"
-                                            className={`h-5 w-5 transition-transform duration-200 ${selected ? 'rotate-180' : ''
+                                            strokeWidth="1.8"
+                                            className="h-3.5 w-3.5"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M16.862 3.487a2.25 2.25 0 0 1 3.182 3.182L8.25 18.463 4 19.5l1.037-4.25L16.862 3.487Z"
+                                            />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="m15.75 4.75 3.5 3.5"
+                                            />
+                                        </svg>
+                                        Edit
+                                    </button>
+
+                                    {/* Delete */}
+                                    <button
+                                        type="button"
+                                        onClick={() => onDeleteSale(sale.id)}
+                                        className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="1.8"
+                                            className="h-3.5 w-3.5"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M4 7h16"
+                                            />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M9 7V4h6v3"
+                                            />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M7 7l1 13h8l1-13"
+                                            />
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M10 11v5m4-5v5"
+                                            />
+                                        </svg>
+                                        Delete
+                                    </button>
+
+                                    {/* Details */}
+                                    <button
+                                        type="button"
+                                        onClick={() => onSelectSale(sale.id)}
+                                        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${selected
+                                                ? "bg-slate-100 text-slate-700"
+                                                : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                                            }`}
+                                    >
+                                        Details
+
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                            className={`h-3.5 w-3.5 transition-transform duration-200 ${selected ? "rotate-180" : ""
                                                 }`}
                                         >
                                             <path
@@ -246,6 +324,7 @@ export function SalesHistoryList({
                                             />
                                         </svg>
                                     </button>
+
                                 </div>
                             </div>
 
