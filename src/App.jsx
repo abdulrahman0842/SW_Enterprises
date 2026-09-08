@@ -10,6 +10,7 @@ import { InventoryPage } from './pages/InventoryPage'
 import { SalesPage } from './pages/SalesPage'
 import { CustomersPage } from './pages/CustomersPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import UpdateSale from './components/sale/UpdateSale'
 
 function AppRoutes() {
   return (
@@ -26,6 +27,7 @@ function AppRoutes() {
           <Route path="/purchases" element={<PurchasesPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/sales" element={<SalesPage />} />
+          <Route path="/sales/update/:saleId" element={<UpdateSale />} />
           <Route path="/customers" element={<CustomersPage />} />
         </Route>
       </Route>

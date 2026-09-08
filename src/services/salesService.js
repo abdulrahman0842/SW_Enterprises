@@ -438,3 +438,16 @@ export async function deleteSale(saleId) {
 
     return data
 }
+
+export async function getSaleById(saleId) {
+    if (!supabase) {
+        throw new Error('Supabase is not configured')
+    }
+
+    const { data, error } = await supabase.from("sales").select("*").eq("id", saleId)
+    console.log(data)
+    if (error) {
+        throw new Error(error)
+    }
+    return data[0]
+}

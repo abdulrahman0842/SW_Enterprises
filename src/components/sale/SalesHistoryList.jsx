@@ -1,4 +1,4 @@
-
+import { useNavigate } from "react-router-dom"
 
 function getPaymentBadgeClass(status) {
     switch (status) {
@@ -29,6 +29,7 @@ export function SalesHistoryList({
     productsById,
     onSendInvoice,
 }) {
+    const navigate = useNavigate()
     if (loading) {
         return (
             <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 text-center">
@@ -234,7 +235,7 @@ export function SalesHistoryList({
                                     {/* Edit */}
                                     <button
                                         type="button"
-                                        onClick={() => onEditSale(sale.id)}
+                                        onClick={() => navigate(`/sales/update/${sale.id}`)}
                                         className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-sky-50 hover:text-sky-600"
                                     >
                                         <svg
@@ -262,7 +263,7 @@ export function SalesHistoryList({
                                     {/* Delete */}
                                     <button
                                         type="button"
-                                        onClick={() => onDeleteSale(sale.id)}
+                                        // onClick={() => onDeleteSale(sale.id)}
                                         className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-rose-50 hover:text-rose-600"
                                     >
                                         <svg
@@ -302,8 +303,8 @@ export function SalesHistoryList({
                                         type="button"
                                         onClick={() => onSelectSale(sale.id)}
                                         className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition ${selected
-                                                ? "bg-slate-100 text-slate-700"
-                                                : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+                                            ? "bg-slate-100 text-slate-700"
+                                            : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                                             }`}
                                     >
                                         Details
