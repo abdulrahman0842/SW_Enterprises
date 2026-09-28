@@ -9,6 +9,7 @@ import {
 } from '../services/salesHistoryService'
 import { fetchProducts } from '../services/productsService'
 import { shareInvoice } from '../utils/ShareInovice'
+import { fetchCustomers } from '../services/customersService'
 
 export function SalesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false)
@@ -20,7 +21,8 @@ export function SalesPage() {
     const [lastSavedSale, setLastSavedSale] = useState(null)
     const [showSaleForm, setShowSaleForm] = useState(false)
     const formRef = useRef(null)
-
+    const [customers, setcustomers] = useState([])
+    const [customerFilter, setCustomerFilter] = useState("all");
     const [paymentFilter, setPaymentFilter] = useState("all");
     const {
         toasts,
@@ -30,6 +32,7 @@ export function SalesPage() {
 
     useEffect(() => {
         loadSalesHistory()
+        loadCustomers()
     }, [])
 
     async function loadSalesHistory() {
@@ -83,6 +86,11 @@ export function SalesPage() {
             setLoadingSales(false)
         }
     }
+    async function loadCustomers() {
+        const data = await fetchCustomers()
+        setcustomers(data)
+        console.log("Customer", data)
+    }
 
     async function handleSubmitSale(saleData) {
         try {
@@ -127,36 +135,39 @@ export function SalesPage() {
 
     async function handleSendInvoice(sale) {
         await shareInvoice({ sale, productsById })
-        // openWhatsappInvoice(
-        //     sale,
-        //     productsById
-        // )
     }
-    const filteredSales = sales.filter((sale) => {
-        if (paymentFilter === "all") return true;
 
-        return sale.payment_status?.toLowerCase() === paymentFilter;
+    const filteredSales = sales.filter((sale) => {
+        const matchesCustomer =
+            customerFilter === "all" ||
+            String(sale.customer_id) === String(customerFilter);
+
+        const matchesPayment =
+            paymentFilter === "all" ||
+            sale.payment_status?.toLowerCase() === paymentFilter;
+
+        return matchesCustomer && matchesPayment;
     });
-   
+
     return (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-4 sm:space-y-6 ">
 
             {/* =========================
                 PAGE HEADER
             ========================== */}
             <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
+                    <h1 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-600">
                         Sales
-                    </p>
+                    </h1>
 
-                    <h1 className="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
+                    <h1 className="mt-1 text-l font-bold text-slate-900 sm:text-2xl">
                         Create Sale
                     </h1>
 
-                    <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+                    {/* <p className="mt-1 text-xs text-slate-500 sm:text-sm">
                         Create sales and manage customer orders
-                    </p>
+                    </p> */}
                 </div>
 
                 <button
@@ -279,29 +290,17 @@ export function SalesPage() {
             {/* =========================
                 SALES HISTORY
             ========================== */}
+
             <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
                 {/* Header */}
-                <div className="flex items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 px-3 py-2.5 sm:px-4">
+                <div className="border-b border-slate-200 bg-slate-50/70 px-3 py-2.5 sm:px-4">
 
-                    {/* Title */}
-                    <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
-                        Recent Sales
-                    </h2>
-
-                    {/* Filter + Count */}
-                    <div className="flex items-center gap-1.5">
-
-                        <select
-                            value={paymentFilter}
-                            onChange={(e) => setPaymentFilter(e.target.value)}
-                            className="h-8 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-200"
-                        >
-                            <option value="all">All</option>
-                            <option value="paid">Paid</option>
-                            <option value="pending">Pending</option>
-                            <option value="partial">Partial</option>
-                        </select>
+                    {/* Title + Count */}
+                    <div className="flex items-center justify-between gap-3">
+                        <h2 className="text-sm font-semibold text-slate-900 sm:text-base">
+                            Sales History
+                        </h2>
 
                         <span className="flex h-8 items-center rounded-md border border-slate-200 bg-white px-2.5 text-xs font-semibold text-slate-600">
                             {filteredSales.length}
@@ -309,8 +308,42 @@ export function SalesPage() {
                                 {filteredSales.length === 1 ? "sale" : "sales"}
                             </span>
                         </span>
-
                     </div>
+
+                    {/* Filters */}
+                    <div className="mt-2 flex  items-center gap-1">
+                        <select
+                            value={customerFilter}
+                            onChange={(e) => setCustomerFilter(e.target.value)}
+                             className="h-8 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-200"
+                        >
+                            <option value="all">All Customers</option>
+
+                            {customers.map((customer) => (
+                                <option key={customer.id} value={customer.id}>
+                                    {customer.name}
+                                </option>
+                            ))}
+                        </select>
+
+                        <select
+                            value={paymentFilter}
+                            onChange={(e) => setPaymentFilter(e.target.value)}
+                             className="h-8 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 text-xs font-medium text-slate-700 outline-none transition focus:border-slate-400 focus:ring-1 focus:ring-slate-200"
+                        >
+                            <option value="all">All</option>
+                            <option value="paid">Paid</option>
+                            <option value="pending">Pending</option>
+                            <option value="partial">Partial</option>
+                        </select>
+                    </div>
+                    {customerFilter !== "all" && (
+                        <p className="mt-2 text-xs text-slate-500">
+                            Showing sales for <span className="font-semibold">
+                                {customers.find(c => String(c.id) === String(customerFilter))?.name}
+                            </span>
+                        </p>
+                    )}
                 </div>
 
                 {/* Sales List */}
