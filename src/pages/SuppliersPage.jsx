@@ -19,9 +19,7 @@ export function SuppliersPage() {
 
     const { toasts, showToast, removeToast } = useToast()
 
-    useEffect(() => {
-        loadSuppliers()
-    }, [])
+
 
     async function loadSuppliers() {
         try {
@@ -137,7 +135,9 @@ export function SuppliersPage() {
     function handleCloseEdit() {
         setEditingSupplier(null)
     }
-
+    useEffect(() => {
+        loadSuppliers()
+    }, [])
     return (
         <div className="space-y-4">
             {/* Page Header */}
@@ -266,7 +266,7 @@ export function SuppliersPage() {
                                         </p>
                                     </div>
 
-                                   
+
 
                                     {/* Actions */}
                                     <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-4">
