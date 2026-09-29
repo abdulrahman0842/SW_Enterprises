@@ -11,6 +11,7 @@ import { SalesPage } from './pages/SalesPage'
 import { CustomersPage } from './pages/CustomersPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import UpdateSale from './components/sale/UpdateSale'
+import { SuppliersPage } from './pages/SuppliersPage'
 
 function AppRoutes() {
   return (
@@ -29,6 +30,8 @@ function AppRoutes() {
           <Route path="/sales" element={<SalesPage />} />
           <Route path="/sales/update/:saleId" element={<UpdateSale />} />
           <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/suppliers" element={<SuppliersPage />} />
+
         </Route>
       </Route>
 

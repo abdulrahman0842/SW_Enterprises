@@ -8,6 +8,7 @@ const navItems = [
     { to: '/inventory', label: 'Inventory' },
     { to: '/sales', label: 'Sales' },
     { to: '/customers', label: 'Customers' },
+    { to: '/suppliers', label: 'Suppliers' },
 ]
 
 export function Sidebar() {
