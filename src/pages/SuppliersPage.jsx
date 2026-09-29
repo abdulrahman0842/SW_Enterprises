@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { SupplierForm } from '../components/SupplierForm'
-import { SupplierList } from '../components/SupplierList'
+import { SupplierForm } from '../components/Supplier/SupplierForm'
+import { SupplierList } from '../components/Supplier/SupplierList'
 import { Toast, useToast } from '../components/Toast'
 import {
     fetchSuppliers,
