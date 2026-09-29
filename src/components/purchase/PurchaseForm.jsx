@@ -8,6 +8,8 @@ export function PurchaseForm({
     isSubmitting,
     products,
     productsLoading,
+    suppliers,
+    suppliersLoading
 }) {
     const selectedProduct = useMemo(
         () => products.find((p) => p.id === Number(form.product_id)),
@@ -108,6 +110,49 @@ export function PurchaseForm({
                     {errors.product_id && (
                         <p className="text-xs text-rose-600">
                             {errors.product_id}
+                        </p>
+                    )}
+                </div>
+                {/* Supplier */}
+                <div className="space-y-1.5">
+                    <label
+                        htmlFor="product_id"
+                        className="block text-sm font-medium text-slate-700"
+                    >
+                        Supplier
+                        <span className="ml-1 text-rose-500">*</span>
+                    </label>
+
+                    <select
+                        id="supplier_id"
+                        name="supplier_id"
+                        value={form.supplier_id}
+                        onChange={onChange}
+                        disabled={
+                            suppliersLoading ||
+                            isSubmitting
+                        }
+                        className={inputClass(errors.supplier_id)}
+                    >
+                        <option value="">
+                            {suppliersLoading
+                                ? 'Loading supplier...'
+                                : 'Select a supplier'}
+                        </option>
+
+                        {suppliers.map((supplier) => (
+                            <option
+                                key={supplier.id}
+                                value={supplier.id}
+                            >
+                                {supplier.name}
+                            </option>
+                        ))}
+                    </select>
+
+                    {errors.supplier_id && (
+                        <p className="text-xs text-rose-600">
+                            {errors.supplier_id}
                         </p>
                     )}
                 </div>

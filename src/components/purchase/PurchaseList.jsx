@@ -57,14 +57,16 @@ export function PurchaseList({
                     return (
                         <article
                             key={purchase.id}
-                            className={`overflow-hidden rounded-xl border transition ${
-                                isSelected
+                            className={`overflow-hidden rounded-xl border transition ${isSelected
                                     ? 'border-sky-300 bg-sky-50/60'
                                     : 'border-slate-200 bg-white'
-                            }`}
+                                }`}
                         >
+
+                            <div className="p-2 mb-0">{purchase.suppliers.name}</div>
                             {/* Header */}
                             <div className="flex items-start justify-between gap-3 px-4 py-3">
+
                                 <div className="min-w-0">
                                     <div className="flex items-center gap-2">
                                         <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400">
@@ -147,11 +149,10 @@ export function PurchaseList({
                                             purchase.id
                                         )
                                     }
-                                    className={`w-full rounded-lg px-3 py-2 text-xs font-semibold transition ${
-                                        isSelected
+                                    className={`w-full rounded-lg px-3 py-2 text-xs font-semibold transition ${isSelected
                                             ? 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                                             : 'bg-slate-900 text-white hover:bg-slate-800'
-                                    }`}
+                                        }`}
                                 >
                                     {isSelected
                                         ? 'Selected'
@@ -211,11 +212,10 @@ export function PurchaseList({
                             return (
                                 <tr
                                     key={purchase.id}
-                                    className={`border-b border-slate-100 transition ${
-                                        isSelected
+                                    className={`border-b border-slate-100 transition ${isSelected
                                             ? 'bg-sky-50'
                                             : 'hover:bg-slate-50'
-                                    }`}
+                                        }`}
                                 >
                                     <td className="px-4 py-3 font-semibold text-slate-700">
                                         #{purchase.id}
@@ -265,11 +265,10 @@ export function PurchaseList({
                                                     purchase.id
                                                 )
                                             }
-                                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                                                isSelected
+                                            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${isSelected
                                                     ? 'bg-sky-100 text-sky-700 hover:bg-sky-200'
                                                     : 'bg-slate-900 text-white hover:bg-slate-800'
-                                            }`}
+                                                }`}
                                         >
                                             {isSelected
                                                 ? 'Selected'

@@ -3,6 +3,7 @@ import { PurchaseForm } from '../components/purchase/PurchaseForm'
 import { PurchaseList } from '../components/purchase/PurchaseList'
 import { Toast, useToast } from '../components/Toast'
 import { fetchProducts, fetchPurchases, createPurchase } from '../services/purchasesService'
+import { fetchSuppliers } from '../services/supplierService'
 
 const createEmptyForm = () => ({
     date: new Date().toISOString().split('T')[0],
@@ -10,6 +11,7 @@ const createEmptyForm = () => ({
     quantity: '',
     rate: '',
     mrp: '',
+    supplier_id:''
 })
 
 function validatePurchase(form) {
@@ -38,6 +40,10 @@ function validatePurchase(form) {
         errors.mrp = 'MRP must be >= 0.'
     }
 
+    if (!form.supplier_id) {
+        errors.supplier_id = 'Supplier is required.'
+    }
+
     return errors
 }
 
@@ -51,10 +57,13 @@ export function PurchasesPage() {
     const [purchasesLoading, setPurchasesLoading] = useState(true)
     const [submitting, setSubmitting] = useState(false)
     const { toasts, showToast, removeToast } = useToast()
+    const [suppliers, setsuppliers] = useState([])
+    const [suppliersLoading, setsuppliersLoading] = useState(true)
 
     useEffect(() => {
         loadProducts()
         loadPurchases()
+        loadSuppliers()
     }, [])
 
     async function loadProducts() {
@@ -84,6 +93,19 @@ export function PurchasesPage() {
             showToast('Failed to load purchases', 'error')
         } finally {
             setPurchasesLoading(false)
+        }
+    }
+
+    async function loadSuppliers() {
+        try {
+            setsuppliersLoading(true)
+            const data = await fetchSuppliers()
+            setsuppliers(data)
+        } catch (error) {
+            console.error('Failed to load suppliers:', error)
+            showToast('Failed to load suppliers', 'error')
+        } finally {
+            setsuppliersLoading(false)
         }
     }
 
@@ -136,7 +158,7 @@ export function PurchasesPage() {
     }
 
     const selectedPurchase = purchases.find((purchase) => purchase.id === selectedPurchaseId) || null
-const [showForm, setShowForm] = useState(false)
+    const [showForm, setShowForm] = useState(false)
     return (
         <div className="space-y-4 sm:space-y-6">
 
@@ -194,6 +216,8 @@ const [showForm, setShowForm] = useState(false)
                             isSubmitting={submitting}
                             products={products}
                             productsLoading={productsLoading}
+                            suppliers={suppliers}
+                            suppliersLoading={suppliersLoading}
                         />
                     </div>
                 </section>
